@@ -71,7 +71,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--gold); outline-
 .buy-now { width: 100%; min-height: 48px; border: 1px solid var(--olive); border-radius: 999px; background: transparent; color: var(--olive); font-size: 9px; font-weight: 600; letter-spacing: .12em; cursor: pointer; transition: background .2s, color .2s; }
 .buy-now:hover { background: var(--olive); color: #fff; }
 .prototype-note { margin: 9px 0 0; color: var(--muted); font-size: 9px; text-align: center; }
-.product-details-panel { width: 100%; margin-top: 0; }
+.product-details-panel { width: 100%; margin-top: 28px; }
 .product-details { border-top: 1px solid #e6e5e1; border-bottom: 1px solid #e6e5e1; }
 .product-details summary { padding: 15px 0; font-size: 10px; font-weight: 600; cursor: pointer; }
 .product-details p { margin: 0 0 15px; color: var(--muted); font-size: 10px; line-height: 1.8; }
