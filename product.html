@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#031206">
+    <meta name="description" content="Explore an AK&CO fragrance and choose your preferred bottle size.">
+    <title>Fragrance | AK&amp;CO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://elegant-yeot-488b39.netlify.app">
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;1,6..96,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="product.css">
+    <link rel="stylesheet" href="signup.css">
+    <script src="product-data.js" defer></script>
+    <script src="product.js" defer></script>
+    <script src="signup.js" defer></script>
+  </head>
+  <body>
+    <main class="product-page">
+      <a class="back-link" href="shop.html"><span aria-hidden="true">←</span> Back to shop</a>
+
+      <div class="product-layout" id="product-detail">
+        <div class="product-gallery">
+          <div class="product-image-frame">
+            <img id="product-image" alt="" fetchpriority="high">
+            <span class="product-badge" id="product-badge" hidden></span>
+            <button type="button" class="gallery-arrow gallery-previous" id="gallery-previous" aria-label="Show previous product image">‹</button>
+            <button type="button" class="gallery-arrow gallery-next" id="gallery-next" aria-label="Show next product image">›</button>
+          </div>
+          <div class="gallery-navigation" id="gallery-navigation" role="group" aria-label="Product image navigation"></div>
+        </div>
+
+        <section class="product-information" aria-labelledby="product-name">
+          <p class="product-eyebrow" id="product-category"></p>
+          <h1 id="product-name"></h1>
+          <p class="product-rating" aria-label="Rated 4.8 out of 5 by 69 customers">
+            <span class="product-rating-stars" aria-hidden="true">★★★★★</span>
+            <span>4.8 rating by 69 customers</span>
+          </p>
+          <p class="product-type" id="product-type"></p>
+
+          <div class="product-price-row">
+            <p class="product-price" id="product-price" aria-live="polite"></p>
+          </div>
+
+          <fieldset class="size-picker">
+            <legend>AVAILABLE SIZES</legend>
+            <div class="size-options" id="size-options"></div>
+          </fieldset>
+
+          <div class="quantity-picker">
+            <span id="quantity-label">QUANTITY</span>
+            <div class="quantity-controls" role="group" aria-labelledby="quantity-label">
+              <button type="button" id="decrease-quantity" aria-label="Decrease quantity">−</button>
+              <output id="quantity-value" aria-live="polite">1</output>
+              <button type="button" id="increase-quantity" aria-label="Increase quantity">+</button>
+            </div>
+          </div>
+
+          <div class="product-actions" role="group" aria-label="Purchase options">
+            <button type="button" class="add-to-bag" id="add-to-bag">ADD TO CART</button>
+            <button type="button" class="buy-now" id="buy-now">BUY NOW</button>
+          </div>
+
+          <div class="product-details-panel">
+            <details class="product-details">
+              <summary>Product details</summary>
+              <p id="product-detail-copy"></p>
+            </details>
+          </div>
+        </section>
+      </div>
+
+      <section class="frequently-bought" id="frequently-bought" hidden aria-labelledby="frequently-bought-title">
+        <div class="recommendation-heading">
+          <div>
+            <p>PAIR YOUR SCENT</p>
+            <h2 id="frequently-bought-title">Frequently bought together</h2>
+          </div>
+          <div class="carousel-controls">
+            <button type="button" id="bundle-previous" aria-label="Scroll frequently bought products left">‹</button>
+            <button type="button" id="bundle-next" aria-label="Scroll frequently bought products right">›</button>
+          </div>
+        </div>
+        <div class="bundle-track" id="bundle-track" aria-label="Frequently bought together products"></div>
+        <div class="bundle-footer">
+          <p>Selected total <strong id="bundle-total"></strong></p>
+          <button type="button" class="bundle-add-button" id="bundle-add">ADD SELECTED TO CART</button>
+        </div>
+        <p class="recommendation-note">Pairing suggestions are a preview and are not based on order history.</p>
+      </section>
+
+      <section class="related-products" id="related-products" hidden aria-labelledby="related-title">
+        <div class="related-heading">
+          <p>MORE TO DISCOVER</p>
+          <h2 id="related-title">You may also like</h2>
+        </div>
+        <div class="related-grid" id="related-grid"></div>
+      </section>
+
+      <section class="product-not-found" id="product-not-found" hidden aria-labelledby="not-found-title">
+        <h1 id="not-found-title">Fragrance not found</h1>
+        <p>Choose a fragrance from the AK&amp;CO collection to view its details.</p>
+        <a href="shop.html">Browse the collection</a>
+        <button type="button">VIEW ALL</button>
+      </section>
+
+      <p class="product-status" id="product-status" role="status" aria-live="polite"></p>
+    </main>
+    <dialog class="signup-dialog" id="signup-dialog" aria-labelledby="signup-title">
+      <img class="signup-floating-image signup-floating-image-left" src="" alt="" aria-hidden="true">
+      <img class="signup-floating-image signup-floating-image-right" src="" alt="" aria-hidden="true">
+      <button class="signup-close" type="button" aria-label="Close email signup">×</button>
+      <p class="signup-eyebrow">THE AK&amp;CO EDIT</p>
+      <h2 id="signup-title">A little something for your inbox</h2>
+      <p class="signup-copy">Be first to discover new fragrances, thoughtful rituals, and exclusive offers.</p>
+      <form class="signup-form">
+        <label class="signup-visually-hidden" for="signup-email">Email address</label>
+        <input id="signup-email" type="email" placeholder="name@email.com" autocomplete="email" required>
+        <button type="submit">KEEP ME IN THE LOOP</button>
+      </form>
+      <p class="signup-preview-note">Preview only — your email won’t be saved or sent.</p>
+      <p class="signup-status" role="status" aria-live="polite"></p>
+    </dialog>
+  </body>
+</html>
