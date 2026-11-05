@@ -19,7 +19,7 @@ if (signupDialog && signupForm) {
         return;
       }
 
-      image.src = `${window.AKCO.imageBase}${encodeURIComponent(item.image)}&w=320&fm=png`;
+      image.src = index === 0 ? "images/signup-royal-amber.png" : "images/signup-musk-bloom.png";
     });
 
     const closeButton = signupDialog.querySelector(".signup-close");
@@ -53,3 +53,4 @@ if (signupDialog && signupForm) {
     });
   }
 }
+
