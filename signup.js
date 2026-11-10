@@ -8,18 +8,14 @@ if (signupDialog && signupForm) {
     !document.querySelector("#product-detail").hidden;
 
   if (isShopPage || isProductPage) {
-    const decorativeProducts = window.AKCO.products.filter((item) =>
-      item.image.toLowerCase().endsWith(".png"),
-    );
     const floatingImages = signupDialog.querySelectorAll(".signup-floating-image");
     floatingImages.forEach((image, index) => {
-      const item = decorativeProducts[index];
-      if (!item) {
+      if (index > 0) {
         image.hidden = true;
         return;
       }
 
-      image.src = index === 0 ? "images/signup-royal-amber.png" : "images/signup-musk-bloom.png";
+      image.src = "images/signup-royal-amber.png";
     });
 
     const closeButton = signupDialog.querySelector(".signup-close");
@@ -28,7 +24,7 @@ if (signupDialog && signupForm) {
     let hasShownSignup = sessionStorage.getItem(storageKey) === "true";
 
     function showSignup() {
-      if (hasShownSignup || signupDialog.open) return;
+      if (hasShownSignup || signupDialog.open || document.querySelector(".cart-drawer[open]")) return;
       hasShownSignup = true;
       sessionStorage.setItem(storageKey, "true");
       signupDialog.showModal();
@@ -41,12 +37,15 @@ if (signupDialog && signupForm) {
 
     closeButton.addEventListener("click", () => signupDialog.close());
     signupDialog.addEventListener("click", (event) => {
-      if (event.target === signupDialog) signupDialog.close();
+      if (event.target !== signupDialog) return;
+      const { left, right, top, bottom } = signupDialog.getBoundingClientRect();
+      if (event.clientX < left || event.clientX > right ||
+          event.clientY < top || event.clientY > bottom) signupDialog.close();
     });
     signupForm.addEventListener("submit", (event) => {
       event.preventDefault();
       signupStatus.textContent =
-        "This preview isn’t connected to an email list. Your address hasn’t been saved or sent.";
+        "This is a preview. Your email wasn’t saved, and no discount code was issued.";
     });
     signupDialog.addEventListener("close", () => {
       window.clearTimeout(signupTimer);

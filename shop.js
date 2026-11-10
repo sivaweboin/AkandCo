@@ -1,11 +1,10 @@
-const shopTitle = document.querySelector("#shop-title");
 const products = window.AKCO.products;
 
 const categoryNames = {
-  all: "Shop all fragrances",
+  all: "All Products",
   attars: "Attars",
   perfumes: "Perfumes",
-  "bakhoor-burners": "Bakhoor Burners",
+  "bakhoor-burners": "Bakhoor",
   fresheners: "Fresheners"
 };
 const formatter = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
@@ -15,40 +14,20 @@ const searchInput = document.querySelector("#product-search");
 const sortSelect = document.querySelector("#sort-products");
 const priceRange = document.querySelector("#price-range");
 const priceOutput = document.querySelector("#price-output");
-const resultCount = document.querySelector("#result-count");
 const collectionTitle = document.querySelector("#collection-title");
+const categoryScroller = document.querySelector("#shop-categories");
+const categoryNext = document.querySelector(".category-next");
 const categoryTabs = [...document.querySelectorAll(".category-tab")];
 const categoryFilters = [...document.querySelectorAll("[data-category-filter]")];
 const typeFilters = [...document.querySelectorAll("[data-type-filter]")];
-const bagCountOutput = document.querySelector("#bag-count");
 const shopStatus = document.querySelector("#shop-status");
 const clearFiltersButton = document.querySelector("#clear-filters");
 const filterPanel = document.querySelector(".filter-panel");
 const filterToggle = document.querySelector("#filter-toggle");
 const mobileFilters = window.matchMedia("(max-width: 620px)");
 let selectedCategory = new URLSearchParams(location.search).get("category") ?? "all";
-let bagCount = 0;
 let statusTimeout;
 
-const titleTextWalker = document.createTreeWalker(shopTitle, NodeFilter.SHOW_TEXT);
-const titleTextNodes = [];
-while (titleTextWalker.nextNode()) titleTextNodes.push(titleTextWalker.currentNode);
-
-let titleCharacterIndex = 0;
-titleTextNodes.forEach((textNode) => {
-  const fragment = document.createDocumentFragment();
-  for (const character of textNode.textContent) {
-    const characterWrapper = document.createElement("span");
-    const characterInner = document.createElement("span");
-    characterWrapper.className = "shop-title-char";
-    characterInner.textContent = character === " " ? "\u00a0" : character;
-    characterInner.style.setProperty("--char-index", String(titleCharacterIndex));
-    characterWrapper.append(characterInner);
-    fragment.append(characterWrapper);
-    titleCharacterIndex += 1;
-  }
-  textNode.replaceWith(fragment);
-});
 
 if (!(selectedCategory in categoryNames)) selectedCategory = "all";
 
@@ -145,15 +124,12 @@ function productCard(product) {
   addButton.type = "button";
   addButton.textContent = "ADD TO BAG";
   addButton.addEventListener("click", () => {
-    bagCount += 1;
-    bagCountOutput.textContent = String(bagCount);
-    addButton.textContent = "ADDED TO BAG";
-    addButton.classList.add("is-added");
-    showStatus(`${product.name} added to your preview bag.`);
-    window.setTimeout(() => {
-      addButton.textContent = "ADD TO BAG";
-      addButton.classList.remove("is-added");
-    }, 1400);
+    window.AKCO.cart.add([{
+      id: product.id,
+      size: Number.parseInt(product.size, 10),
+      price: product.price,
+      quantity: 1,
+    }]);
   });
   actions.append(addButton);
   card.append(visual, info, actions);
@@ -165,7 +141,7 @@ function updateCategoryControls() {
   categoryFilters.forEach((input) => {
     input.checked = selectedCategory !== "all" && input.value === selectedCategory;
   });
-  collectionTitle.textContent = selectedCategory === "all" ? "Shop all fragrances" : categoryNames[selectedCategory];
+  collectionTitle.textContent = categoryNames[selectedCategory];
   const url = new URL(location.href);
   if (selectedCategory === "all") url.searchParams.delete("category");
   else url.searchParams.set("category", selectedCategory);
@@ -182,7 +158,6 @@ function updateCategoryCounts() {
 function renderProducts() {
   const visibleProducts = getVisibleProducts();
   productGrid.replaceChildren(...visibleProducts.map(productCard));
-  resultCount.textContent = `Showing ${visibleProducts.length} of ${products.length} fragrances`;
   emptyState.hidden = visibleProducts.length > 0;
 
   if (visibleProducts.length === 0) {
@@ -242,6 +217,20 @@ filterToggle.addEventListener("click", () => {
 });
 
 mobileFilters.addEventListener("change", updateFilterPanelForViewport);
+
+function updateCategoryArrow() {
+  const scrollLimit = categoryScroller.scrollWidth - categoryScroller.clientWidth;
+  categoryNext.hidden = scrollLimit <= 1;
+  categoryNext.disabled = categoryScroller.scrollLeft >= scrollLimit - 1;
+}
+
+categoryNext.addEventListener("click", () => {
+  categoryScroller.scrollBy({ left: categoryScroller.clientWidth * .8 });
+});
+categoryScroller.addEventListener("scroll", updateCategoryArrow, { passive: true });
+window.addEventListener("resize", updateCategoryArrow);
+updateCategoryArrow();
+
 categoryTabs.forEach((tab) => {
   tab.addEventListener("click", () => {
     selectedCategory = tab.dataset.category;

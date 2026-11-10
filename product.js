@@ -25,10 +25,8 @@ if (!product) {
   const status = document.querySelector("#product-status");
   const addButton = document.querySelector("#add-to-bag");
   const buyNowButton = document.querySelector("#buy-now");
-  const bundleSection = document.querySelector("#frequently-bought");
-  const bundleTrack = document.querySelector("#bundle-track");
-  const bundleTotal = document.querySelector("#bundle-total");
-  const bundleAddButton = document.querySelector("#bundle-add");
+  const pairingSection = document.querySelector("#frequently-bought");
+  const pairingTrack = document.querySelector("#pairing-track");
   const relatedSection = document.querySelector("#related-products");
   const relatedGrid = document.querySelector("#related-grid");
   let selectedSize = sizeOptions[0];
@@ -44,103 +42,51 @@ if (!product) {
   document.querySelector("#product-name").textContent = product.name;
   document.querySelector("#product-category").textContent =
     product.category === "attars" ? "ATTAR" : "EAU DE PARFUM";
-  document.querySelector("#product-type").textContent =
-    `${product.type} · ${product.size}`;
+
   document.querySelector("#product-detail-copy").textContent =
     `${product.name} is part of the AK&CO collection. Choose a size to see its preview price.`;
 
-  const relatedProducts = window.AKCO.products
-    .filter(
-      (item) => item.category === product.category && item.id !== product.id,
-    )
-    .slice(0, 6);
-  if (relatedProducts.length > 0) {
-    relatedSection.hidden = false;
-    relatedProducts.forEach((item) => {
-      const link = document.createElement("a");
-      link.className = "related-card";
-      link.href = `product.html?id=${encodeURIComponent(item.id)}`;
-      const imageFrame = document.createElement("div");
-      imageFrame.className = "related-card-image";
-      const image = document.createElement("img");
-      image.src = `${window.AKCO.imageBase}${encodeURIComponent(item.image)}&w=480&fm=webp&q=75`;
-      image.alt = `${item.name} ${item.type}`;
-      image.loading = "lazy";
-      image.decoding = "async";
-      image.addEventListener(
-        "error",
-        () => {
-          image.hidden = true;
-          imageFrame.setAttribute(
-            "aria-label",
-            `${item.name} image unavailable`,
-          );
-        },
-        { once: true },
-      );
-      imageFrame.append(image);
-      const name = document.createElement("h3");
-      name.textContent = item.name;
-      const details = document.createElement("p");
-      details.textContent = `${item.type} · ${item.size} · ${formatter.format(item.price)}`;
-      link.append(imageFrame, name, details);
-      relatedGrid.append(link);
-    });
+  function recommendationCard(item) {
+    const card = document.createElement("article");
+    card.className = "recommendation-card";
+    const link = document.createElement("a");
+    link.href = `product.html?id=${encodeURIComponent(item.id)}`;
+    const frame = document.createElement("div");
+    frame.className = "recommendation-image";
+    const image = document.createElement("img");
+    image.src = `${window.AKCO.imageBase}${encodeURIComponent(item.image)}&w=480&fm=webp&q=75`;
+    image.alt = "";
+    image.loading = "lazy";
+    image.decoding = "async";
+    image.addEventListener("error", () => { image.hidden = true; }, { once: true });
+    frame.append(image);
+    const name = document.createElement("h3");
+    name.textContent = item.name;
+    link.append(frame, name);
+
+    const details = document.createElement("p");
+    details.textContent = `${item.type} · ${item.size}`;
+    const price = document.createElement("strong");
+    price.className = "recommendation-price";
+    price.textContent = formatter.format(item.price);
+    const add = document.createElement("button");
+    add.type = "button";
+    add.className = "recommendation-add";
+    add.textContent = "Add to cart";
+    add.setAttribute("aria-label", `Add to cart: ${item.name}, ${item.size}`);
+    add.addEventListener("click", () => window.AKCO.cart.add([cartEntry(item)]));
+    card.append(link, details, price, add);
+    return card;
   }
 
-  const bundleProducts = [
-    product,
-    ...window.AKCO.products
-      .filter((item) => item.category !== product.category)
-      .slice(0, 2),
-  ];
-  if (bundleProducts.length > 1) {
-    bundleSection.hidden = false;
-    bundleProducts.forEach((item, index) => {
-      const card = document.createElement("article");
-      card.className = "bundle-card";
-      const imageFrame = document.createElement("div");
-      imageFrame.className = "bundle-card-image";
-      const image = document.createElement("img");
-      image.src = `${window.AKCO.imageBase}${encodeURIComponent(item.image)}&w=480&fm=webp&q=75`;
-      image.alt = `${item.name} ${item.type}`;
-      image.loading = "lazy";
-      image.decoding = "async";
-      image.addEventListener(
-        "error",
-        () => {
-          image.hidden = true;
-          imageFrame.setAttribute(
-            "aria-label",
-            `${item.name} image unavailable`,
-          );
-        },
-        { once: true },
-      );
-      imageFrame.append(image);
-
-      const name = document.createElement("h3");
-      name.textContent = item.name;
-      const details = document.createElement("p");
-      details.textContent = `${item.type} · ${item.size}`;
-      const label = document.createElement("label");
-      label.className = "bundle-check";
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.checked = true;
-      checkbox.disabled = index === 0;
-      checkbox.dataset.bundleProduct = item.id;
-      checkbox.setAttribute(
-        "aria-label",
-        `${index === 0 ? "Included" : "Add"} ${item.name}`,
-      );
-      checkbox.addEventListener("change", updateBundleTotal);
-      const choiceText = document.createElement("span");
-      choiceText.textContent = index === 0 ? "Selected item" : "Add to set";
-      label.append(checkbox, choiceText);
-      card.append(imageFrame, name, details, label);
-      bundleTrack.append(card);
-    });
+  const otherProducts = window.AKCO.products.filter((item) => item.id !== product.id);
+  const sameCategory = otherProducts.filter((item) => item.category === product.category);
+  const otherCategories = otherProducts.filter((item) => item.category !== product.category);
+  if (otherProducts.length > 0) {
+    relatedGrid.append(...[...sameCategory, ...otherCategories].slice(0, 6).map(recommendationCard));
+    pairingTrack.append(...[...otherCategories, ...sameCategory].slice(0, 4).map(recommendationCard));
+    relatedSection.hidden = false;
+    pairingSection.hidden = false;
   }
 
   function getProductPrice(item) {
@@ -148,52 +94,14 @@ if (!product) {
     return Math.round((item.price * selectedSize) / baseSize / 50) * 50;
   }
 
-  function updateBundleTotal() {
-    const selectedIds = new Set(
-      [...bundleTrack.querySelectorAll("[data-bundle-product]:checked")].map(
-        (checkbox) => checkbox.dataset.bundleProduct,
-      ),
-    );
-    const total = bundleProducts
-      .filter((item) => selectedIds.has(item.id))
-      .reduce((sum, item) => sum + getProductPrice(item), 0);
-    bundleTotal.textContent = formatter.format(total);
+  function cartEntry(item, quantity = 1) {
+    return {
+      id: item.id,
+      size: item.id === product.id ? selectedSize : Number.parseInt(item.size, 10),
+      price: getProductPrice(item),
+      quantity,
+    };
   }
-
-  updateBundleTotal();
-  function scrollBundle(direction) {
-    const behavior = window.matchMedia("(prefers-reduced-motion: reduce)")
-      .matches
-      ? "auto"
-      : "smooth";
-    bundleTrack.scrollBy({
-      left: direction * bundleTrack.clientWidth * 0.8,
-      behavior,
-    });
-  }
-
-  document.querySelector("#bundle-previous").addEventListener("click", () => {
-    scrollBundle(-1);
-  });
-  document.querySelector("#bundle-next").addEventListener("click", () => {
-    scrollBundle(1);
-  });
-  bundleAddButton.addEventListener("click", () => {
-    const selectedNames = bundleProducts
-      .filter(
-        (item) =>
-          bundleTrack.querySelector(`[data-bundle-product="${item.id}"]`)
-            .checked,
-      )
-      .map((item) => item.name);
-    status.textContent = `${selectedNames.join(", ")} added to your preview cart.`;
-    status.classList.add("is-visible");
-    window.clearTimeout(statusTimeout);
-    statusTimeout = window.setTimeout(
-      () => status.classList.remove("is-visible"),
-      2800,
-    );
-  });
 
   function showGalleryImage(index) {
     activeImageIndex =
@@ -294,9 +202,7 @@ if (!product) {
   });
 
   function updatePrice() {
-    const estimatedPrice =
-      Math.round((product.price * selectedSize) / baseSize / 50) * 50;
-    priceOutput.textContent = formatter.format(estimatedPrice);
+    priceOutput.textContent = formatter.format(getProductPrice(product));
   }
 
   sizeOptions.forEach((size) => {
@@ -316,7 +222,6 @@ if (!product) {
           );
         });
       updatePrice();
-      updateBundleTotal();
     });
     sizeOptionsContainer.append(option);
   });
@@ -332,13 +237,7 @@ if (!product) {
   });
 
   addButton.addEventListener("click", () => {
-    status.textContent = `${quantity} × ${product.name} (${selectedSize} ml) added to your preview cart.`;
-    status.classList.add("is-visible");
-    window.clearTimeout(statusTimeout);
-    statusTimeout = window.setTimeout(
-      () => status.classList.remove("is-visible"),
-      2600,
-    );
+    window.AKCO.cart.add([cartEntry(product, quantity)]);
   });
 
   buyNowButton.addEventListener("click", () => {

@@ -1,0 +1,181 @@
+:root {
+  --serif: Georgia, serif;
+  --sans: Arial, sans-serif;
+}
+
+[data-smoke-title] {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.title-smoke {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  opacity: 0;
+  transition: opacity .35s ease;
+}
+
+.has-title-smoke .title-smoke { opacity: 1; }
+
+.title-smoke video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.title-smoke::after {
+  position: absolute;
+  inset: 0;
+  background: rgb(3 12 9 / 60%);
+  content: "";
+}
+
+.title-smoke-toggle {
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  min-height: 28px;
+  padding: 4px 9px;
+  border: 1px solid rgb(255 255 255 / 55%);
+  border-radius: 5px;
+  background: rgb(3 12 9 / 85%);
+  color: white;
+  font: .75rem var(--sans);
+  cursor: pointer;
+}
+
+.title-smoke-toggle[hidden] { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .title-smoke, .title-smoke-toggle { display: none; }
+}
+
+.info-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.info-page main {
+  flex: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .reveal-pending:not(:focus-within) {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  .reveal-entered:not(:focus-within) {
+    animation: section-rise .65s cubic-bezier(.22, 1, .36, 1) backwards;
+  }
+}
+
+@keyframes section-rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero {
+  min-height: clamp(300px, 42vw, 420px);
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: white;
+  background: #031206;
+}
+.hero-content { width: 100%; text-align: center; padding: 52px 24px; }
+.hero-title { margin: 0; font-family: var(--serif); font-size: clamp(42px, 6vw, 72px); font-weight: 400; line-height: 1.08; letter-spacing: .04em; text-transform: uppercase; }
+.hero-title-word { display: inline-block; white-space: nowrap; margin-inline: .1em; }
+.hero-title-letter { display: inline-block; overflow: hidden; vertical-align: bottom; }
+.hero-title-letter > span { display: inline-block; }
+.hero-title.is-ready .hero-title-letter > span { transform: translateY(110%); }
+.hero-title.is-visible .hero-title-letter > span { animation: hero-title-rise 1.2s cubic-bezier(.22, 1, .36, 1) both; animation-delay: calc(var(--char-index, 0) * 60ms); }
+@keyframes hero-title-rise {
+  from { transform: translateY(110%); }
+  to { transform: translateY(0); }
+}
+.hero-copy { max-width: 34rem; margin: 18px auto 0; color: rgba(255,255,255,.94); font-size: 1.0625rem; line-height: 1.75; }
+
+@media (max-width: 650px) {
+  .hero-content { padding-inline: 15px; }
+  .hero-title { font-size: clamp(42px, 10vw, 58px); letter-spacing: .03em; }
+  .hero-copy { font-size: 1rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-title.is-ready .hero-title-letter > span,
+  .hero-title.is-visible .hero-title-letter > span { animation: none; transform: none; }
+}
+
+.info-content {
+  width: min(42rem, calc(100% - 48px));
+  margin-inline: auto;
+  padding-block: clamp(32px, 6vw, 72px);
+}
+
+.info-content section + section {
+  margin-top: 28px;
+  padding-top: 28px;
+  border-top: 1px solid var(--line);
+}
+
+.info-content h2 {
+  margin: 0 0 10px;
+  font: 400 clamp(24px, 4vw, 34px)/1.2 var(--serif);
+}
+
+.info-content p {
+  margin: 0 0 12px;
+  line-height: 1.8;
+}
+
+.info-content a:not(.button) {
+  text-decoration: underline;
+  text-underline-offset: .2em;
+}
+
+.info-content > .button {
+  margin-top: 12px;
+}
+
+.info-not-found-copy {
+  text-align: center;
+}
+
+.info-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 18px 24px;
+}
+
+.store-footer {
+  padding: 24px;
+  background: #031206;
+  color: #f5f4f0;
+}
+
+.store-footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px 28px;
+}
+
+.store-footer a {
+  color: inherit;
+  font-size: .9375rem;
+  text-decoration: none;
+}
+
+.store-footer a:hover,
+.store-footer a[aria-current="page"] {
+  text-decoration: underline;
+  text-underline-offset: .2em;
+}

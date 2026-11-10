@@ -6,13 +6,14 @@
     <meta name="theme-color" content="#031206">
     <meta name="description" content="Explore an AK&CO fragrance and choose your preferred bottle size.">
     <title>Fragrance | AK&amp;CO</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://elegant-yeot-488b39.netlify.app">
-    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;1,6..96,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="product.css">
     <link rel="stylesheet" href="signup.css">
+    <link rel="stylesheet" href="info.css">
+    <script src="reveal.js" defer></script>
+    <link rel="stylesheet" href="cart.css">
     <script src="product-data.js" defer></script>
+    <script src="cart.js" defer></script>
     <script src="product.js" defer></script>
     <script src="signup.js" defer></script>
   </head>
@@ -38,7 +39,6 @@
             <span class="product-rating-stars" aria-hidden="true">★★★★★</span>
             <span>4.8 rating by 69 customers</span>
           </p>
-          <p class="product-type" id="product-type"></p>
 
           <div class="product-price-row">
             <p class="product-price" id="product-price" aria-live="polite"></p>
@@ -70,7 +70,7 @@
             </details>
             <details class="product-details">
               <summary>Shipping information</summary>
-              <p>Shipping details are a placeholder for this preview. Delivery timelines and shipping fees will be added soon.</p>
+              <p>See our <a href="shipping.html"><u>shipping information</u></a> for delivery enquiries and tracking help.</p>
             </details>
             <details class="product-details">
               <summary>Returns &amp; exchanges</summary>
@@ -80,26 +80,16 @@
         </section>
       </div>
 
-      <section class="frequently-bought" id="frequently-bought" hidden aria-labelledby="frequently-bought-title">
+      <section class="frequently-bought" id="frequently-bought" hidden aria-labelledby="frequently-bought-title" data-reveal>
         <div class="recommendation-heading">
-          <div>
-            <p>PAIR YOUR SCENT</p>
-            <h2 id="frequently-bought-title">Frequently bought together</h2>
-          </div>
-          <div class="carousel-controls">
-            <button type="button" id="bundle-previous" aria-label="Scroll frequently bought products left">‹</button>
-            <button type="button" id="bundle-next" aria-label="Scroll frequently bought products right">›</button>
-          </div>
+          <p>PAIR YOUR SCENT</p>
+          <h2 id="frequently-bought-title">Frequently bought together</h2>
         </div>
-        <div class="bundle-track" id="bundle-track" aria-label="Frequently bought together products"></div>
-        <div class="bundle-footer">
-          <p>Selected total <strong id="bundle-total"></strong></p>
-          <button type="button" class="bundle-add-button" id="bundle-add">ADD SELECTED TO CART</button>
-        </div>
+        <div class="pairing-track" id="pairing-track"></div>
         <p class="recommendation-note">Pairing suggestions are a preview and are not based on order history.</p>
       </section>
 
-      <section class="related-products" id="related-products" hidden aria-labelledby="related-title">
+      <section class="related-products" id="related-products" hidden aria-labelledby="related-title" data-reveal>
         <div class="related-heading">
           <p>MORE TO DISCOVER</p>
           <h2 id="related-title">You may also like</h2>
@@ -116,19 +106,33 @@
 
       <p class="product-status" id="product-status" role="status" aria-live="polite"></p>
     </main>
++    <footer class="store-footer">
+      <nav aria-label="Store information">
+        <a href="shop.html">Shop</a>
+        <a href="about.html">About us</a>
+        <a href="index.html">Contact</a>
+        <a href="shipping.html">Shipping</a>
+        <a href="privacy.html">Privacy policy</a>
+        <a href="terms.html">Terms of service</a>
+      </nav>
+    </footer>
     <dialog class="signup-dialog" id="signup-dialog" aria-labelledby="signup-title">
       <img class="signup-floating-image signup-floating-image-left" src="" alt="" aria-hidden="true">
       <img class="signup-floating-image signup-floating-image-right" src="" alt="" aria-hidden="true">
-      <button class="signup-close" type="button" aria-label="Close email signup">×</button>
-      <p class="signup-eyebrow">THE AK&amp;CO EDIT</p>
-      <h2 id="signup-title">A little something for your inbox</h2>
-      <p class="signup-copy">Be first to discover new fragrances, thoughtful rituals, and exclusive offers.</p>
+      <button class="signup-close" type="button" aria-label="Close email signup">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+          <path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <p class="signup-eyebrow">WELCOME OFFER</p>
+      <h2 id="signup-title">Get 10% off your first order</h2>
+      <p class="signup-copy">Sign up for AK&amp;CO emails to get the welcome offer and hear about new fragrances.</p>
       <form class="signup-form">
         <label class="signup-visually-hidden" for="signup-email">Email address</label>
         <input id="signup-email" type="email" placeholder="name@email.com" autocomplete="email" required>
-        <button type="submit">KEEP ME IN THE LOOP</button>
+        <button type="submit">Get my 10% off</button>
       </form>
-      <p class="signup-preview-note">Preview only — your email won’t be saved or sent.</p>
+      <p class="signup-preview-note">Offer preview only. Emails are not saved and discount codes are not issued.</p>
       <p class="signup-status" role="status" aria-live="polite"></p>
     </dialog>
   </body>
