@@ -24,7 +24,7 @@ if (signupDialog && signupForm) {
     let hasShownSignup = sessionStorage.getItem(storageKey) === "true";
 
     function showSignup() {
-      if (hasShownSignup || signupDialog.open || document.querySelector(".cart-drawer[open]")) return;
+      if (hasShownSignup || document.querySelector("dialog[open]")) return;
       hasShownSignup = true;
       sessionStorage.setItem(storageKey, "true");
       signupDialog.showModal();

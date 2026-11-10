@@ -11,10 +11,15 @@ const formatter = new Intl.NumberFormat("en-IN", { style: "currency", currency: 
 const productGrid = document.querySelector("#product-grid");
 const emptyState = document.querySelector("#empty-state");
 const searchInput = document.querySelector("#product-search");
-const sortSelect = document.querySelector("#sort-products");
+const sortControl = document.querySelector("#sort-products");
+const sortSummary = sortControl.querySelector("summary");
+const sortLabel = sortControl.querySelector(".sort-label");
+const sortOptions = [...sortControl.querySelectorAll("[data-sort]")];
 const priceRange = document.querySelector("#price-range");
 const priceOutput = document.querySelector("#price-output");
 const collectionTitle = document.querySelector("#collection-title");
+const resultCount = document.querySelector("#result-count");
+const desktopResultCount = document.querySelector(".desktop-result-count");
 const categoryScroller = document.querySelector("#shop-categories");
 const categoryNext = document.querySelector(".category-next");
 const categoryTabs = [...document.querySelectorAll(".category-tab")];
@@ -24,8 +29,17 @@ const shopStatus = document.querySelector("#shop-status");
 const clearFiltersButton = document.querySelector("#clear-filters");
 const filterPanel = document.querySelector(".filter-panel");
 const filterToggle = document.querySelector("#filter-toggle");
+const filterToggleLabel = filterToggle.querySelector(".filter-toggle-label");
+const filterDialog = document.querySelector("#mobile-filter-dialog");
+const filterDialogActions = filterDialog.querySelector(".filter-dialog-actions");
+const filterDone = filterDialog.querySelector(".filter-done");
+const listingControls = document.querySelector(".listing-controls");
+const shopLayout = document.querySelector(".shop-layout");
+const filterSlot = document.querySelector(".filter-slot");
 const mobileFilters = window.matchMedia("(max-width: 620px)");
 let selectedCategory = new URLSearchParams(location.search).get("category") ?? "all";
+let sortOrder = "featured";
+let desktopFiltersOpen = false;
 let statusTimeout;
 
 
@@ -48,7 +62,6 @@ function getVisibleProducts() {
     return categoryMatches && typeMatches && searchMatches && product.price <= maxPrice;
   });
 
-  const sortOrder = sortSelect.value;
   if (sortOrder === "price-low") visible.sort((a, b) => a.price - b.price);
   if (sortOrder === "price-high") visible.sort((a, b) => b.price - a.price);
   if (sortOrder === "name") visible.sort((a, b) => a.name.localeCompare(b.name));
@@ -159,6 +172,10 @@ function renderProducts() {
   const visibleProducts = getVisibleProducts();
   productGrid.replaceChildren(...visibleProducts.map(productCard));
   emptyState.hidden = visibleProducts.length > 0;
+  const count = visibleProducts.length;
+  resultCount.textContent = `${count} ${count === 1 ? "result" : "results"}`;
+  desktopResultCount.textContent = `(${count})`;
+  filterDone.textContent = `Show ${count} ${count === 1 ? "result" : "results"}`;
 
   if (visibleProducts.length === 0) {
     const categoryIsEmpty = selectedCategory === "bakhoor-burners" || selectedCategory === "fresheners";
@@ -183,39 +200,59 @@ function clearFilters() {
   categoryFilters.forEach((input) => { input.checked = false; });
   typeFilters.forEach((input) => { input.checked = false; });
   searchInput.value = "";
-  sortSelect.value = "featured";
+  updateSortOrder("featured");
   priceRange.value = priceRange.max;
   priceOutput.value = formatter.format(Number(priceRange.value));
   updateCategoryControls();
   renderProducts();
 }
 
-function updateFilterPanelForViewport() {
-  const isMobile = mobileFilters.matches;
-  filterToggle.hidden = !isMobile;
+function updateFilterToggle() {
+  const mobile = mobileFilters.matches;
+  filterToggle.setAttribute("aria-expanded", String(mobile ? filterDialog.open : desktopFiltersOpen));
+  filterToggleLabel.textContent = mobile ? "Filter" : desktopFiltersOpen ? "Hide Filters" : "Show Filters";
+}
 
-  if (isMobile) {
-    filterPanel.classList.add("is-collapsed");
-    filterPanel.classList.remove("is-expanded");
-    filterToggle.setAttribute("aria-expanded", "false");
-    filterToggle.innerHTML = 'SHOW FILTERS <span aria-hidden="true">+</span>';
+function updateFilterPanelForViewport() {
+  sortControl.open = false;
+  if (mobileFilters.matches) {
+    filterDialogActions.before(filterPanel);
+    document.querySelector("#filter-options").before(sortControl);
+    filterToggle.setAttribute("aria-controls", filterDialog.id);
+    filterToggle.setAttribute("aria-haspopup", "dialog");
   } else {
-    filterPanel.classList.remove("is-collapsed", "is-expanded");
-    filterToggle.setAttribute("aria-expanded", "true");
-    filterToggle.innerHTML = 'HIDE FILTERS <span aria-hidden="true">−</span>';
+    if (filterDialog.open) filterDialog.close();
+    filterSlot.append(filterPanel);
+    listingControls.append(sortControl);
+    filterToggle.setAttribute("aria-controls", filterPanel.id);
+    filterToggle.removeAttribute("aria-haspopup");
   }
+  updateFilterToggle();
 }
 
 filterToggle.addEventListener("click", () => {
-  const isExpanded = filterToggle.getAttribute("aria-expanded") === "true";
-  filterToggle.setAttribute("aria-expanded", String(!isExpanded));
-  filterToggle.innerHTML = isExpanded
-    ? 'SHOW FILTERS <span aria-hidden="true">+</span>'
-    : 'HIDE FILTERS <span aria-hidden="true">−</span>';
-  filterPanel.classList.toggle("is-collapsed", isExpanded);
-  filterPanel.classList.toggle("is-expanded", !isExpanded);
+  if (mobileFilters.matches) {
+    filterDialog.showModal();
+  } else {
+    desktopFiltersOpen = !desktopFiltersOpen;
+    shopLayout.classList.toggle("filters-open", desktopFiltersOpen);
+    filterSlot.inert = !desktopFiltersOpen;
+  }
+  updateFilterToggle();
 });
 
+filterDone.addEventListener("click", () => filterDialog.close());
+filterPanel.querySelector(".filter-close").addEventListener("click", () => filterDialog.close());
+filterDialog.addEventListener("close", () => {
+  sortControl.open = false;
+  updateFilterToggle();
+});
+filterDialog.addEventListener("click", (event) => {
+  if (event.target !== filterDialog) return;
+  const { left, right, top, bottom } = filterDialog.getBoundingClientRect();
+  if (event.clientX < left || event.clientX > right ||
+      event.clientY < top || event.clientY > bottom) filterDialog.close();
+});
 mobileFilters.addEventListener("change", updateFilterPanelForViewport);
 
 function updateCategoryArrow() {
@@ -251,7 +288,32 @@ categoryFilters.forEach((input) => {
 
 typeFilters.forEach((input) => input.addEventListener("change", renderProducts));
 searchInput.addEventListener("input", renderProducts);
-sortSelect.addEventListener("change", renderProducts);
+function updateSortOrder(order) {
+  sortOrder = order;
+  for (const option of sortOptions) {
+    const selected = option.dataset.sort === sortOrder;
+    option.setAttribute("aria-pressed", String(selected));
+    if (selected) sortLabel.textContent = order === "featured" ? "Sort By" : option.textContent;
+  }
+}
+
+sortOptions.forEach((option) => {
+  option.addEventListener("click", () => {
+    updateSortOrder(option.dataset.sort);
+    sortControl.open = false;
+    sortSummary.focus();
+    renderProducts();
+  });
+});
+sortControl.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape" || !sortControl.open) return;
+  event.preventDefault();
+  sortControl.open = false;
+  sortSummary.focus();
+});
+document.addEventListener("click", (event) => {
+  if (sortControl.open && !sortControl.contains(event.target)) sortControl.open = false;
+});
 priceRange.addEventListener("input", () => {
   priceOutput.value = formatter.format(Number(priceRange.value));
   renderProducts();

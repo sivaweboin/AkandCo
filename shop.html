@@ -26,6 +26,19 @@
     <header class="shop-header">
       <div class="shop-header-inner">
         <a class="shop-wordmark" href="shop.html">AK&amp;CO</a>
+        <label class="search-control">
+          <span class="visually-hidden">Search fragrances</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="10.8" cy="10.8" r="6.3"></circle>
+            <path d="m16 16 4.2 4.2"></path>
+          </svg>
+          <input
+            type="search"
+            id="product-search"
+            placeholder="Search fragrances…"
+            autocomplete="off"
+          />
+        </label>
       </div>
     </header>
     <main>
@@ -41,232 +54,220 @@
         aria-labelledby="collection-title"
       >
         <div class="shop-heading" data-reveal>
-          <h2 id="collection-title">All Products</h2>
+          <h2><span id="collection-title">All Products</span> <span class="desktop-result-count" aria-hidden="true"></span></h2>
+          <div class="listing-controls">
+            <button class="filter-toggle" id="filter-toggle" type="button" aria-expanded="false" aria-controls="product-filters">
+              <span class="filter-toggle-label">Show Filters</span>
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                <path d="M3 7h4m5 0h9M3 17h9m5 0h4" stroke-linecap="round"/>
+                <circle cx="9.5" cy="7" r="2.5"/>
+                <circle cx="14.5" cy="17" r="2.5"/>
+              </svg>
+            </button>
+            <details class="sort-control" id="sort-products">
+              <summary><span class="sort-label">Sort By</span></summary>
+              <div class="sort-options" role="group" aria-label="Sort fragrances">
+                <button type="button" data-sort="featured" aria-pressed="true">Featured</button>
+                <button type="button" data-sort="price-low" aria-pressed="false">Price: low to high</button>
+                <button type="button" data-sort="price-high" aria-pressed="false">Price: high to low</button>
+                <button type="button" data-sort="name" aria-pressed="false">Name: A to Z</button>
+              </div>
+            </details>
+          </div>
+          <div class="category-strip" data-reveal>
+            <nav
+              class="category-tabs"
+              id="shop-categories"
+              aria-label="Shop by category"
+            >
+              <button
+                type="button"
+                class="category-tab"
+                data-category="all"
+                aria-pressed="false"
+              >
+                <span class="category-visual"
+                  ><img
+                    src="https://elegant-yeot-488b39.netlify.app/.netlify/images?url=%2Fimages%2F4.png&amp;w=240&amp;fm=webp&amp;q=70"
+                    alt=""
+                    loading="lazy"
+                /></span>
+                <span class="category-name">All fragrances</span>
+              </button>
+              <button
+                type="button"
+                class="category-tab"
+                data-category="attars"
+                aria-pressed="false"
+              >
+                <span class="category-visual"
+                  ><img
+                    src="https://elegant-yeot-488b39.netlify.app/.netlify/images?url=%2Fimages%2F3.png&amp;w=240&amp;fm=webp&amp;q=70"
+                    alt=""
+                    loading="lazy"
+                /></span>
+                <span class="category-name">Attars</span>
+              </button>
+              <button
+                type="button"
+                class="category-tab"
+                data-category="perfumes"
+                aria-pressed="false"
+              >
+                <span class="category-visual"
+                  ><img
+                    src="https://elegant-yeot-488b39.netlify.app/.netlify/images?url=%2Fimages%2F4.png&amp;w=240&amp;fm=webp&amp;q=70"
+                    alt=""
+                    loading="lazy"
+                /></span>
+                <span class="category-name">Perfumes</span>
+              </button>
+              <button
+                type="button"
+                class="category-tab"
+                data-category="bakhoor-burners"
+                aria-pressed="false"
+              >
+                <span class="category-visual"
+                  ><img
+                    src="https://elegant-yeot-488b39.netlify.app/.netlify/images?url=%2Fimages%2F2.png&amp;w=240&amp;fm=webp&amp;q=70"
+                    alt=""
+                    loading="lazy"
+                /></span>
+                <span class="category-name">Bakhoor</span>
+              </button>
+              <button
+                type="button"
+                class="category-tab"
+                data-category="fresheners"
+                aria-pressed="false"
+              >
+                <span class="category-visual"
+                  ><img
+                    src="https://elegant-yeot-488b39.netlify.app/.netlify/images?url=%2Fimages%2F1.png&amp;w=240&amp;fm=webp&amp;q=70"
+                    alt=""
+                    loading="lazy"
+                /></span>
+                <span class="category-name">Fresheners</span>
+              </button>
+            </nav>
+            <button
+              class="category-next"
+              type="button"
+              aria-controls="shop-categories"
+              aria-label="Scroll to more categories"
+              hidden
+            >
+              <svg
+                viewBox="0 0 20 20"
+                width="18"
+                height="18"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path
+                  d="m8 5 5 5-5 5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+          </div>
+          <p class="result-count" id="result-count" role="status"></p>
         </div>
 
         <div class="shop-layout">
-          <aside class="filter-panel" aria-label="Product filters">
-            <div class="filter-heading">
-              <h3>FILTERS</h3>
-              <button
-                type="button"
-                class="filter-toggle"
-                id="filter-toggle"
-                aria-expanded="false"
-                aria-controls="filter-options"
-              >
-                SHOW FILTERS <span aria-hidden="true">+</span>
-              </button>
-              <button type="button" class="clear-filters" id="clear-filters">
-                Clear all
-              </button>
-            </div>
+          <div class="filter-slot" inert>
+            <aside class="filter-panel" id="product-filters" aria-labelledby="filter-title">
+              <div class="filter-heading">
+                <h3 id="filter-title">Filters</h3>
+                <button type="button" class="clear-filters" id="clear-filters">
+                  Clear all
+                </button>
+                <button type="button" class="filter-close" aria-label="Close filters" autofocus>×</button>
+              </div>
 
-            <div class="filter-options" id="filter-options">
-              <fieldset class="filter-group">
-                <legend>Category</legend>
-                <label class="filter-check"
-                  ><input
-                    type="checkbox"
-                    value="attars"
-                    data-category-filter /><span>Attars</span
-                  ><span class="filter-count" data-count="attars"></span
-                ></label>
-                <label class="filter-check"
-                  ><input
-                    type="checkbox"
-                    value="perfumes"
-                    data-category-filter /><span>Perfumes</span
-                  ><span class="filter-count" data-count="perfumes"></span
-                ></label>
-                <label class="filter-check"
-                  ><input
-                    type="checkbox"
-                    value="bakhoor-burners"
-                    data-category-filter /><span>Bakhoor</span
-                  ><span
-                    class="filter-count"
-                    data-count="bakhoor-burners"
-                  ></span
-                ></label>
-                <label class="filter-check"
-                  ><input
-                    type="checkbox"
-                    value="fresheners"
-                    data-category-filter /><span>Fresheners</span
-                  ><span class="filter-count" data-count="fresheners"></span
-                ></label>
-              </fieldset>
+              <div class="filter-options" id="filter-options">
+                <fieldset class="filter-group">
+                  <legend>Category</legend>
+                  <label class="filter-check"
+                    ><input
+                      type="checkbox"
+                      value="attars"
+                      data-category-filter /><span>Attars</span
+                    ><span class="filter-count" data-count="attars"></span
+                  ></label>
+                  <label class="filter-check"
+                    ><input
+                      type="checkbox"
+                      value="perfumes"
+                      data-category-filter /><span>Perfumes</span
+                    ><span class="filter-count" data-count="perfumes"></span
+                  ></label>
+                  <label class="filter-check"
+                    ><input
+                      type="checkbox"
+                      value="bakhoor-burners"
+                      data-category-filter /><span>Bakhoor</span
+                    ><span
+                      class="filter-count"
+                      data-count="bakhoor-burners"
+                    ></span
+                  ></label>
+                  <label class="filter-check"
+                    ><input
+                      type="checkbox"
+                      value="fresheners"
+                      data-category-filter /><span>Fresheners</span
+                    ><span class="filter-count" data-count="fresheners"></span
+                  ></label>
+                </fieldset>
 
-              <fieldset class="filter-group">
-                <legend>Fragrance type</legend>
-                <label class="filter-check"
-                  ><input
-                    type="checkbox"
-                    value="Eau de Parfum"
-                    data-type-filter
-                  /><span>Eau de Parfum</span></label
-                >
-                <label class="filter-check"
-                  ><input type="checkbox" value="Attar" data-type-filter /><span
-                    >Attar</span
-                  ></label
-                >
-              </fieldset>
+                <fieldset class="filter-group">
+                  <legend>Fragrance type</legend>
+                  <label class="filter-check"
+                    ><input
+                      type="checkbox"
+                      value="Eau de Parfum"
+                      data-type-filter
+                    /><span>Eau de Parfum</span></label
+                  >
+                  <label class="filter-check"
+                    ><input type="checkbox" value="Attar" data-type-filter /><span
+                      >Attar</span
+                    ></label
+                  >
+                </fieldset>
 
-              <fieldset class="filter-group price-filter">
-                <legend>Price</legend>
-                <div class="price-values">
-                  <span>₹1,000</span
-                  ><output id="price-output" for="price-range">₹5,000</output>
-                </div>
-                <input
-                  id="price-range"
-                  type="range"
-                  min="1000"
-                  max="5000"
-                  step="250"
-                  value="5000"
-                  aria-label="Maximum price"
-                />
-                <p>Maximum price</p>
-              </fieldset>
+                <fieldset class="filter-group price-filter">
+                  <legend>Price</legend>
+                  <div class="price-values">
+                    <span>₹1,000</span
+                    ><output id="price-output" for="price-range">₹5,000</output>
+                  </div>
+                  <input
+                    id="price-range"
+                    type="range"
+                    min="1000"
+                    max="5000"
+                    step="250"
+                    value="5000"
+                    aria-label="Maximum price"
+                  />
+                  <p>Maximum price</p>
+                </fieldset>
 
-              <p class="filter-note">
-                More of the AK&amp;CO collection is coming soon.
-              </p>
-            </div>
-          </aside>
+                <p class="filter-note">
+                  More of the AK&amp;CO collection is coming soon.
+                </p>
+              </div>
+            </aside>
+          </div>
 
           <div class="product-area">
-            <div class="toolbar" data-reveal>
-              <label class="search-control">
-                <span class="visually-hidden">Search fragrances</span>
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <circle cx="10.8" cy="10.8" r="6.3"></circle>
-                  <path d="m16 16 4.2 4.2"></path>
-                </svg>
-                <input
-                  type="search"
-                  id="product-search"
-                  placeholder="Search fragrances…"
-                  autocomplete="off"
-                />
-              </label>
-              <label class="sort-control">
-                <span>Sort by</span>
-                <select id="sort-products">
-                  <option value="featured">Featured</option>
-                  <option value="price-low">Price: low to high</option>
-                  <option value="price-high">Price: high to low</option>
-                  <option value="name">Name: A to Z</option>
-                </select>
-              </label>
-            </div>
-
-            <div class="category-strip" data-reveal>
-              <nav
-                class="category-tabs"
-                id="shop-categories"
-                aria-label="Shop by category"
-              >
-                <button
-                  type="button"
-                  class="category-tab"
-                  data-category="all"
-                  aria-pressed="false"
-                >
-                  <span class="category-visual"
-                    ><img
-                      src="https://elegant-yeot-488b39.netlify.app/.netlify/images?url=%2Fimages%2F4.png&amp;w=240&amp;fm=webp&amp;q=70"
-                      alt=""
-                      loading="lazy"
-                  /></span>
-                  <span class="category-name">All fragrances</span>
-                </button>
-                <button
-                  type="button"
-                  class="category-tab"
-                  data-category="attars"
-                  aria-pressed="false"
-                >
-                  <span class="category-visual"
-                    ><img
-                      src="https://elegant-yeot-488b39.netlify.app/.netlify/images?url=%2Fimages%2F3.png&amp;w=240&amp;fm=webp&amp;q=70"
-                      alt=""
-                      loading="lazy"
-                  /></span>
-                  <span class="category-name">Attars</span>
-                </button>
-                <button
-                  type="button"
-                  class="category-tab"
-                  data-category="perfumes"
-                  aria-pressed="false"
-                >
-                  <span class="category-visual"
-                    ><img
-                      src="https://elegant-yeot-488b39.netlify.app/.netlify/images?url=%2Fimages%2F4.png&amp;w=240&amp;fm=webp&amp;q=70"
-                      alt=""
-                      loading="lazy"
-                  /></span>
-                  <span class="category-name">Perfumes</span>
-                </button>
-                <button
-                  type="button"
-                  class="category-tab"
-                  data-category="bakhoor-burners"
-                  aria-pressed="false"
-                >
-                  <span class="category-visual"
-                    ><img
-                      src="https://elegant-yeot-488b39.netlify.app/.netlify/images?url=%2Fimages%2F2.png&amp;w=240&amp;fm=webp&amp;q=70"
-                      alt=""
-                      loading="lazy"
-                  /></span>
-                  <span class="category-name">Bakhoor</span>
-                </button>
-                <button
-                  type="button"
-                  class="category-tab"
-                  data-category="fresheners"
-                  aria-pressed="false"
-                >
-                  <span class="category-visual"
-                    ><img
-                      src="https://elegant-yeot-488b39.netlify.app/.netlify/images?url=%2Fimages%2F1.png&amp;w=240&amp;fm=webp&amp;q=70"
-                      alt=""
-                      loading="lazy"
-                  /></span>
-                  <span class="category-name">Fresheners</span>
-                </button>
-              </nav>
-              <button
-                class="category-next"
-                type="button"
-                aria-controls="shop-categories"
-                aria-label="Scroll to more categories"
-                hidden
-              >
-                <svg
-                  viewBox="0 0 20 20"
-                  width="18"
-                  height="18"
-                  aria-hidden="true"
-                  focusable="false"
-                >
-                  <path
-                    d="m8 5 5 5-5 5"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.6"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </button>
-            </div>
-
             <div
               class="product-grid"
               data-reveal
@@ -298,6 +299,11 @@
         aria-live="polite"
       ></p>
     </main>
+    <dialog class="filter-dialog" id="mobile-filter-dialog" aria-labelledby="filter-title">
+      <div class="filter-dialog-actions">
+        <button type="button" class="filter-done">Show results</button>
+      </div>
+    </dialog>
     +
     <footer class="store-footer">
       <nav aria-label="Store information">

@@ -2,7 +2,7 @@
   const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
   if (motion.matches || navigator.connection?.saveData) return;
 
-  const source = "https://elegant-yeot-488b39.netlify.app/images/hero3.mp4";
+  const source = new URL("images/title-smoke.mp4", document.currentScript.src);
 
   function addSmoke(title) {
     const backdrop = document.createElement("div");
@@ -13,7 +13,7 @@
     video.muted = true;
     video.loop = true;
     video.playsInline = true;
-    video.preload = "none";
+    video.preload = "auto";
     video.src = source;
     backdrop.append(video);
 
@@ -43,21 +43,5 @@
     if (!motion.matches) video.play().catch(() => {});
   }
 
-  const titles = document.querySelectorAll("[data-smoke-title]");
-  if (!("IntersectionObserver" in window)) {
-    for (const title of titles) {
-      if (title.getClientRects().length) addSmoke(title);
-    }
-    return;
-  }
-
-  const observer = new IntersectionObserver((entries) => {
-    for (const entry of entries) {
-      if (!entry.isIntersecting || entry.intersectionRect.height === 0) continue;
-      observer.unobserve(entry.target);
-      addSmoke(entry.target);
-    }
-  });
-
-  for (const title of titles) observer.observe(title);
+  document.querySelectorAll("[data-smoke-title]").forEach(addSmoke);
 })();
