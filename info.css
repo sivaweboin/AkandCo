@@ -54,8 +54,13 @@
     transform: translateY(16px);
   }
 
-  .reveal-entered:not(:focus-within) {
+  .reveal-entered:not([data-reveal-stagger], :focus-within) {
     animation: section-rise .65s cubic-bezier(.22, 1, .36, 1) backwards;
+  }
+
+  .reveal-entered[data-reveal-stagger] > .reveal-step {
+    animation: section-rise .52s cubic-bezier(.22, 1, .36, 1) backwards;
+    animation-delay: calc(75ms + var(--reveal-step) * 55ms);
   }
 }
 

@@ -5,14 +5,22 @@
   const observer = new IntersectionObserver((entries) => {
     for (const entry of entries) {
       if (!entry.isIntersecting || entry.intersectionRect.height === 0) continue;
-      entry.target.classList.replace("reveal-pending", "reveal-entered");
+      const section = entry.target;
+      if (section.classList.replace("reveal-pending", "reveal-entered") &&
+          section.hasAttribute("data-reveal-stagger")) {
+        [...section.children].forEach((item, index) => {
+          item.classList.add("reveal-step");
+          item.style.setProperty("--reveal-step", String(Math.min(index, 5)));
+        });
+      }
       observer.unobserve(entry.target);
     }
   });
 
   for (const section of document.querySelectorAll("[data-reveal]")) {
-    // Keep content in or above the initial viewport immediately readable.
-    if (!section.hidden && section.getBoundingClientRect().top < window.innerHeight) continue;
+    // Keep ordinary content in the initial viewport immediately readable.
+    if (!section.hasAttribute("data-reveal-stagger") && !section.hidden &&
+        section.getBoundingClientRect().top < window.innerHeight) continue;
 
     section.classList.add("reveal-pending");
     observer.observe(section);
