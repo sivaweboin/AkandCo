@@ -146,6 +146,7 @@ if (!product) {
   });
 
   imageFrame.addEventListener("pointerdown", (event) => {
+    if (!event.isPrimary || event.button !== 0) return;
     imageFrame.classList.add("is-controls-visible");
     window.clearTimeout(controlsTimeout);
     controlsTimeout = window.setTimeout(
@@ -177,8 +178,8 @@ if (!product) {
     galleryPointerStart = null;
   });
 
-  window.addEventListener("pointercancel", () => {
-    galleryPointerStart = null;
+  window.addEventListener("pointercancel", (event) => {
+    if (galleryPointerStart?.id === event.pointerId) galleryPointerStart = null;
   });
 
   if (

@@ -17,25 +17,11 @@
     video.src = source;
     backdrop.append(video);
 
-    const toggle = document.createElement("button");
-    toggle.type = "button";
-    toggle.className = "title-smoke-toggle";
-    toggle.textContent = "Pause background";
-    toggle.hidden = true;
-    title.append(backdrop, toggle);
+    title.append(backdrop);
 
     video.addEventListener("playing", () => {
       title.classList.add("has-title-smoke");
-      toggle.textContent = "Pause background";
-      toggle.hidden = false;
-    });
-    video.addEventListener("pause", () => {
-      toggle.textContent = "Play background";
-    });
-    toggle.addEventListener("click", () => {
-      if (video.paused) video.play().catch(() => {});
-      else video.pause();
-    });
+    }, { once: true });
     motion.addEventListener("change", (event) => {
       if (event.matches) video.pause();
     });

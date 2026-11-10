@@ -122,20 +122,21 @@ function productCard(product) {
   nameLink.className = "product-name-link";
   nameLink.href = detailUrl;
   nameLink.append(name);
-  const price = document.createElement("p");
-  price.className = "product-price";
-  price.textContent = formatter.format(product.price);
+  
   const type = document.createElement("p");
   type.className = "product-type";
   type.textContent = `${product.type} · ${product.size}`;
-  info.append(nameLink, price, type);
+  const price = document.createElement("p");
+  price.className = "product-price";
+  price.textContent = formatter.format(product.price);
+  info.append(nameLink, type, price);
 
   const actions = document.createElement("div");
   actions.className = "product-card-actions";
   const addButton = document.createElement("button");
   addButton.className = "add-to-bag";
   addButton.type = "button";
-  addButton.textContent = "ADD TO BAG";
+  addButton.textContent = "ADD TO CART";
   addButton.addEventListener("click", () => {
     window.AKCO.cart.add([{
       id: product.id,
