@@ -1,0 +1,404 @@
+{% style %}
+.akco-contact {
+    --ink: #1a1a1a;
+    --muted: #65675d;
+    --paper: #e8e7e3;
+    --white: #f5f4f0;
+    --olive: #031206;
+    --line: #c9c9bf;
+    --gold: #8b6220;
+    --serif: Georgia, serif;
+    color: var(--ink);
+    *, *::before, *::after { box-sizing: border-box; }
+    a { color: inherit; text-decoration: none; }
+    button, input, select, textarea { font: inherit; }
+  .content-width { width: min(1160px, calc(100% - 64px)); margin-inline: auto; }
+
+  .eyebrow { margin: 0; font-size: .75rem; font-weight: 500; letter-spacing: .16em; }
+  .hero-eyebrow { margin-bottom: 12px; color: rgba(255,255,255,.82); }
+  .text-link { display: inline-flex; align-items: center; gap: 14px; padding-bottom: 7px; border-bottom: 1px solid #8a8b7f; font-size: .75rem; font-weight: 600; letter-spacing: .15em; transition: gap .2s ease; }
+  .text-link:hover { gap: 20px; }
+  .light-link { border-color: rgba(255,255,255,.75); }
+
+  .contact-section { padding-top: clamp(38px, 6vw, 72px); }
+  .contact-intro { max-width: 560px; margin: 0 0 32px; }
+  .contact-intro .eyebrow, .section-heading .eyebrow { color: var(--gold); }
+  .contact-intro h2, .section-heading h2 { margin: 12px 0 13px; font-family: var(--serif); font-size: clamp(30px, 3.5vw, 43px); font-weight: 400; line-height: 1.2; }
+  .contact-intro h2 em { color: #777669; font-weight: 400; }
+  .contact-intro > p:last-child { max-width: 480px; margin: 0; color: var(--muted); line-height: 1.8; }
+  .contact-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.65fr); gap: 20px; }
+  .contact-card { background: #f5f4f0; border: 1px solid var(--line); border-radius: 16px; padding: clamp(22px, 4vw, 42px); }
+  .details-card { background: var(--olive); border-color: var(--olive); color: var(--white); }
+  .details-card .eyebrow { color: #ddbe81; }
+  .details-card h2 { margin: 14px 0 12px; font: 400 clamp(28px, 4vw, 40px)/1.12 var(--serif); }
+  .details-card > p:not(.eyebrow) { margin: 0 0 22px; color: #d3d6cf; line-height: 1.75; }
+  .contact-phone { display: block; width: fit-content; margin-bottom: 22px; font-size: clamp(16px, 2vw, 21px); font-weight: 600; }
+  .contact-phone:hover { text-decoration: underline; text-underline-offset: .2em; }
+  .details-card .text-link { color: #ddbe81; }
+  .store-address { padding-top: 22px; border-top: 1px solid rgb(255 255 255 / 22%); }
+  .store-address h3 { margin: 9px 0 12px; font: 400 clamp(22px, 2.5vw, 30px)/1.15 var(--serif); }
+  .store-address address { margin-bottom: 18px; color: #d3d6cf; font-style: normal; line-height: 1.65; }
+
+  .form-card > .eyebrow { color: var(--gold); }
+  .form-card h2 { margin: 9px 0 7px; font-family: var(--serif); font-size: clamp(27px, 4vw, 36px); font-weight: 400; line-height: 1.15; }
+  .form-intro { margin: 0 0 22px; color: var(--muted); font-size: .9375rem; line-height: 1.6; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .field { display: block; margin-bottom: 13px; }
+  .field > span { display: block; margin-bottom: 6px; color: #54554e; font-size: .9375rem; font-weight: 500; }
+  .field input, .field select, .field textarea { width: 100%; min-height: 48px; padding: 11px 12px; border: 1px solid var(--line); border-radius: 8px; background: #fbfaf8; color: var(--ink); outline: none; font-size: 1.0625rem; transition: border-color .2s, box-shadow .2s; }
+  .field textarea { min-height: 106px; resize: vertical; }
+  .field input::placeholder, .field textarea::placeholder, .field select:invalid { color: #6d6c62; }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(139,98,32,.12); }
+  .consent { display: flex; align-items: center; gap: 8px; margin: 1px 0 17px; color: var(--muted); font-size: .875rem; }
+  .consent input { accent-color: var(--olive); }
+  .consent a { color: var(--gold); text-decoration: underline; text-underline-offset: 2px; }
+  .button { min-height: 43px; display: inline-flex; align-items: center; justify-content: center; gap: 18px; padding: 0 22px; border: 1px solid transparent; font-size: .75rem; font-weight: 600; letter-spacing: .15em; cursor: pointer; transition: background .2s, color .2s; }
+  .button-dark { width: 100%; min-height: 48px; border-radius: 8px; background: var(--olive); color: white; }
+  .button-dark:hover { background: #24392b; }
+  .form-status { margin: 10px 0 0; color: var(--olive); font-size: .9375rem; line-height: 1.5; }
+  .form-status:empty { margin: 0; }
+
+  .visit-card { grid-column: 1 / -1; overflow: hidden; border: 1px solid var(--line); border-radius: 16px; background: #f5f4f0; scroll-margin-top: 20px; }
+  .visit-card iframe { display: block; width: 100%; height: clamp(380px, 36vw, 500px); border: 0; }
+
+  .faq-section { padding-top: 92px; padding-bottom: 76px; }
+  .section-heading { text-align: center; margin-bottom: 25px; }
+  .section-heading h2 { margin-bottom: 0; font-size: 34px; }
+  .faq-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
+  .faq-list details { align-self: start; border: 1px solid var(--line); border-radius: 10px; background: #f5f4f0; }
+  .faq-list summary { min-height: 54px; padding: 10px 17px; display: flex; align-items: center; justify-content: space-between; gap: 16px; list-style: none; cursor: pointer; font-size: .9375rem; font-weight: 500; }
+  .faq-list summary::-webkit-details-marker { display: none; }
+  .faq-toggle { width: 15px; height: 15px; position: relative; flex: 0 0 auto; }
+  .faq-toggle::before, .faq-toggle::after { content: ""; position: absolute; top: 7px; left: 2px; width: 11px; height: 1px; background: var(--gold); }
+  .faq-toggle::after { transform: rotate(90deg); transition: transform .2s; }
+  .faq-list details[open] .faq-toggle::after { transform: rotate(0); }
+  .faq-list details > p { margin: 0 17px 17px; max-width: 440px; color: var(--muted); font-size: .9375rem; line-height: 1.75; }
+
+  .help-banner { min-height: 138px; margin-bottom: 73px; padding: 25px 6%; display: flex; align-items: center; gap: 25px; background: #e1dfd8; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .help-seal { width: 59px; height: 59px; display: grid; place-items: center; flex: 0 0 auto; border: 1px solid var(--gold); border-radius: 50%; color: var(--olive); font-family: var(--serif); font-size: 1.0625rem; letter-spacing: .02em; }
+  .help-banner > div:nth-child(2) { flex: 1; }
+  .help-banner .eyebrow { color: var(--gold); }
+  .help-banner h2 { margin: 5px 0 3px; font-family: var(--serif); font-size: 26px; font-weight: 400; }
+  .help-banner p:last-child { margin: 0; color: var(--muted); font-size: .875rem; }
+  .button-light { background: var(--paper); color: var(--ink); border-color: var(--line); }
+  .button-light:hover { background: var(--olive); color: white; border-color: var(--olive); }
+
+
+  .hero {
+    min-height: clamp(300px, 42vw, 420px);
+    position: relative;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    color: white;
+    background:
+      linear-gradient(var(--title-smoke-shade), var(--title-smoke-shade)),
+      #031206;
+  }
+  .hero-content { width: 100%; text-align: center; padding: 52px 24px; }
+  .hero-title { margin: 0; font-family: var(--serif); font-size: clamp(42px, 6vw, 72px); font-weight: 400; line-height: 1.08; letter-spacing: .04em; text-transform: uppercase; }
+
+  .hero { position: relative; isolation: isolate; --title-smoke-shade: rgb(3 12 9 / 60%); }
+  .hero-media, .hero-media video, .hero-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .hero-media { z-index: -1; overflow: hidden; }
+  .hero-media::after { content: ""; position: absolute; inset: 0; background: var(--title-smoke-shade); }
+  .hero-media video { display: block; }
+  .hero-copy { max-width: 34rem; margin: 18px auto 0; color: white; font-size: 1.0625rem; line-height: 1.75; }
+  .hero-title { animation: akco-contact-rise .75s cubic-bezier(.22, 1, .36, 1) both; }
+  .form-errors { color: #8f2121; }
+  @media (max-width: 650px) {
+    .content-width { width: min(100% - 36px, 480px); }
+    .hero-title { font-size: clamp(36px, 9vw, 58px); }
+    .contact-intro { margin-bottom: 24px; }
+    .contact-intro h2 { font-size: 33px; }
+    .contact-grid { grid-template-columns: 1fr; gap: 13px; }
+    .contact-card { padding: 26px 22px; }
+    .field-row { grid-template-columns: 1fr; }
+    .field-row { gap: 0; }
+    .visit-card iframe { height: 260px; }
+    .faq-section { padding-top: 64px; padding-bottom: 52px; }
+    .section-heading h2 { font-size: 30px; }
+    .faq-list { grid-template-columns: 1fr; gap: 8px; }
+    .help-banner { min-height: auto; margin-bottom: 50px; padding: 23px 20px; flex-wrap: wrap; gap: 15px; }
+    .help-seal { width: 48px; height: 48px; }
+    .help-banner h2 { font-size: 22px; }
+    .help-banner > div:nth-child(2) { min-width: calc(100% - 65px); }
+    .button-light { width: 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-title { animation: none; }
+    .hero-media video { display: none; }
+  }
+}
+@keyframes akco-contact-rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+{% endstyle %}
+
+{% assign map_query = section.settings.address | newline_to_br | replace: "<br />", ", " | strip_newlines | url_encode %}
+{% assign phone_href = section.settings.phone | remove: " " | remove: "(" | remove: ")" | remove: "-" %}
+<div class="akco-contact">
+  <section class="hero" aria-labelledby="hero-title-{{ section.id }}">
+    {% if section.settings.hero_video != blank or section.settings.hero_image != blank %}
+      <div class="hero-media" aria-hidden="true">
+        {% if section.settings.hero_image != blank %}
+          {{ section.settings.hero_image | image_url: width: 1920 | image_tag: alt: '' }}
+        {% endif %}
+        {% if section.settings.hero_video != blank %}
+          {{ section.settings.hero_video | video_tag: autoplay: true, loop: true, muted: true, playsinline: true, controls: false }}
+        {% endif %}
+      </div>
+    {% endif %}
+    <div class="hero-content">
+      <h1 class="hero-title" id="hero-title-{{ section.id }}">
+        {{ section.settings.heading | escape }}
+      </h1>
+      <p class="hero-copy">
+        {{ section.settings.subtitle | escape }}
+      </p>
+    </div>
+  </section>
+
+  <section class="contact-section content-width" id="contact">
+    <div class="contact-intro">
+      <p class="eyebrow">THE AK&amp;CO TEAM</p>
+      <h2>Let’s talk <em>fragrance.</em></h2>
+      <p>
+        Tell us what you’re looking for, or call our Chennai store to speak
+        with the team.
+      </p>
+    </div>
+
+    <div class="contact-grid">
+      <aside
+        class="contact-card details-card"
+        aria-labelledby="details-title-{{ section.id }}"
+       
+      >
+        <p class="eyebrow">THE CHENNAI STORE</p>
+        <h2 id="details-title-{{ section.id }}">Talk to our team</h2>
+        <p>
+          Call us for help choosing a fragrance, checking availability, or
+          following up on an order.
+        </p>
+        <a class="contact-phone" href="tel:{{ phone_href | escape }}"
+          >{{ section.settings.phone | escape }}</a
+        >
+        <div class="store-address">
+          <p class="eyebrow">MUGALIVAKKAM</p>
+          <h3>Visit us in Chennai</h3>
+          <address>
+            {{ section.settings.address | escape | newline_to_br }}
+          </address>
+          <a
+            class="text-link"
+            href="https://www.google.com/maps/dir/?api=1&amp;destination={{ map_query }}"
+            target="_blank"
+            rel="noopener noreferrer"
+            >GET DIRECTIONS <span aria-hidden="true">↗</span></a
+          >
+        </div>
+      </aside>
+
+      <section
+        class="contact-card form-card"
+        aria-labelledby="form-title-{{ section.id }}"
+       
+      >
+        <p class="eyebrow">WE’RE LISTENING</p>
+        <h2 id="form-title-{{ section.id }}">Send us a message</h2>
+        {% assign form_id = 'ContactForm-' | append: section.id %}
+        {% form 'contact', id: form_id %}
+          {% if form.posted_successfully? %}
+            <p class="form-status" role="status">Thanks for your message. We’ll get back to you soon.</p>
+          {% endif %}
+          {% if form.errors %}
+            <div class="form-errors" role="alert">{{ form.errors | default_errors }}</div>
+          {% endif %}
+          <div class="field-row">
+            <label class="field">
+              <span>Your name</span>
+              <input
+                name="contact[name]"
+                value="{{ form.name | default: customer.name | escape }}"
+                type="text"
+                autocomplete="name"
+                placeholder="Full name"
+                required
+              />
+            </label>
+            <label class="field">
+              <span>Email address</span>
+              <input
+                name="contact[email]"
+                value="{{ form.email | default: customer.email | escape }}"
+                type="email"
+                autocomplete="email"
+                placeholder="you@example.com"
+                required
+              />
+            </label>
+          </div>
+          <label class="field">
+            <span>What’s this about?</span>
+            <select name="contact[Topic]" required>
+              <option value="" selected disabled>Choose a topic</option>
+              <option>Finding my fragrance</option>
+              <option>An existing order</option>
+              <option>Gifting &amp; occasions</option>
+              <option>Press &amp; partnerships</option>
+              <option>Something else</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Your message</span>
+            <textarea
+              name="contact[body]"
+              rows="5"
+              placeholder="Tell us what’s on your mind…"
+              required
+            >{{ form.body | escape }}</textarea>
+          </label>
+          {% if shop.privacy_policy.url != blank %}
+            <label class="consent">
+              <input type="checkbox" name="contact[Privacy consent]" value="Agreed" required>
+              <span>I agree to the <a href="{{ shop.privacy_policy.url }}">Privacy Policy</a>.</span>
+            </label>
+          {% endif %}
+          <button class="button button-dark" type="submit">
+            SEND MESSAGE <span aria-hidden="true">→</span>
+          </button>
+          {% endform %}
+      </section>
+
+      <section
+        class="visit-card"
+        id="visit-store"
+        aria-label="Store location"
+       
+      >
+        <iframe
+          title="Map of AK&CO, Mugalivakkam, Chennai"
+          src="https://maps.google.com/maps?q={{ map_query }}&amp;z=16&amp;output=embed"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
+      </section>
+    </div>
+  </section>
+
+  <section
+    class="faq-section content-width"
+    aria-labelledby="faq-title-{{ section.id }}"
+   
+  >
+    <div class="section-heading">
+      <p class="eyebrow">A FEW THINGS YOU MAY BE WONDERING</p>
+      <h2 id="faq-title-{{ section.id }}">Before you write</h2>
+    </div>
+    <div class="faq-list">
+      <details>
+        <summary>
+          <span>How can I find my signature scent?</span
+          ><span class="faq-toggle" aria-hidden="true"></span>
+        </summary>
+        <p>
+          Tell us the notes, places, or memories you’re drawn to. Our
+          fragrance team will help you find a scent that feels like you.
+        </p>
+      </details>
+      <details>
+        <summary>
+          <span>Where is my order?</span
+          ><span class="faq-toggle" aria-hidden="true"></span>
+        </summary>
+        <p>
+          If you’ve received a dispatch email, use its tracking link. For
+          help, call the store with your order number.
+        </p>
+      </details>
+      <details>
+        <summary>
+          <span>Can you help me choose a gift?</span
+          ><span class="faq-toggle" aria-hidden="true"></span>
+        </summary>
+        <p>
+          Of course. Share a little about who you’re shopping for and we’ll
+          suggest a thoughtful fragrance or discovery set.
+        </p>
+      </details>
+      <details>
+        <summary>
+          <span>How do I check delivery availability?</span
+          ><span class="faq-toggle" aria-hidden="true"></span>
+        </summary>
+        <p>
+          Call the store with your PIN code and the fragrance you’re
+          interested in. We can help with delivery options, fees, and
+          timing.
+        </p>
+      </details>
+    </div>
+  </section>
+
+  <section class="help-banner content-width">
+    <div class="help-seal" aria-hidden="true">AK</div>
+    <div>
+      <p class="eyebrow">WE’RE HAPPY TO HELP</p>
+      <h2>Need a little guidance?</h2>
+      <p>Tell us what you love. We’ll help you find your scent.</p>
+    </div>
+    <a class="button button-light" href="tel:{{ phone_href | escape }}"
+      >CALL THE STORE <span aria-hidden="true">→</span></a
+    >
+  </section>
+</div>
+
+{% schema %}
+{
+  "name": "AK&CO Contact us",
+  "limit": 1,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Page title",
+      "default": "Contact us"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Fragrance advice, gifting help, and questions about your order."
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "Hero image"
+    },
+    {
+      "type": "video",
+      "id": "hero_video",
+      "label": "Hero video"
+    },
+    {
+      "type": "text",
+      "id": "phone",
+      "label": "Store phone",
+      "default": "+91 99621 38586"
+    },
+    {
+      "type": "textarea",
+      "id": "address",
+      "label": "Store address",
+      "default": "Shop No. 4, 1st Main Road\nSabari Nagar Extension, Mugalivakkam\nChennai, Tamil Nadu 600125"
+    }
+  ],
+  "presets": [
+    {
+      "name": "AK&CO Contact us"
+    }
+  ]
+}
+{% endschema %}

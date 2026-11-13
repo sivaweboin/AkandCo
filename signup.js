@@ -8,16 +8,6 @@ if (signupDialog && signupForm) {
     !document.querySelector("#product-detail").hidden;
 
   if (isShopPage || isProductPage) {
-    const floatingImages = signupDialog.querySelectorAll(".signup-floating-image");
-    floatingImages.forEach((image, index) => {
-      if (index > 0) {
-        image.hidden = true;
-        return;
-      }
-
-      image.src = "images/signup-royal-amber.png";
-    });
-
     const closeButton = signupDialog.querySelector(".signup-close");
     const signupStatus = signupDialog.querySelector(".signup-status");
     const storageKey = "akco-signup-prompt-shown";
