@@ -40,6 +40,7 @@ const mobileFilters = window.matchMedia("(max-width: 620px)");
 let selectedCategory = new URLSearchParams(location.search).get("category") ?? "all";
 let sortOrder = "featured";
 let desktopFiltersOpen = false;
+const favoriteIds = new Set();
 let statusTimeout;
 
 
@@ -68,7 +69,7 @@ function getVisibleProducts() {
   return visible;
 }
 
-function productCard(product) {
+function productCard(product, imageSource = optimizedImage(product.image)) {
   const card = document.createElement("article");
   card.className = "product-card";
 
@@ -76,7 +77,7 @@ function productCard(product) {
   visual.className = "product-visual";
 
   const image = document.createElement("img");
-  image.src = optimizedImage(product.image);
+  image.src = imageSource;
   image.alt = `${product.name} ${product.type}, ${product.size}`;
   image.loading = "lazy";
   image.decoding = "async";
@@ -103,13 +104,16 @@ function productCard(product) {
   const favorite = document.createElement("button");
   favorite.className = "favorite-button";
   favorite.type = "button";
-  favorite.setAttribute("aria-label", `Add ${product.name} to favorites`);
-  favorite.setAttribute("aria-pressed", "false");
+  favorite.dataset.favorite = product.id;
+  updateFavoriteButton(favorite, product);
   favorite.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.8c0 5.2-8.8 10-8.8 10s-8.8-4.8-8.8-10A4.8 4.8 0 0 1 12 6.4a4.8 4.8 0 0 1 8.8 2.4Z"></path></svg>';
   favorite.addEventListener("click", () => {
-    const isFavorite = favorite.getAttribute("aria-pressed") === "true";
-    favorite.setAttribute("aria-pressed", String(!isFavorite));
-    favorite.setAttribute("aria-label", isFavorite ? `Add ${product.name} to favorites` : `Remove ${product.name} from favorites`);
+    const isFavorite = favoriteIds.has(product.id);
+    if (isFavorite) favoriteIds.delete(product.id);
+    else favoriteIds.add(product.id);
+    for (const button of document.querySelectorAll("[data-favorite]")) {
+      if (button.dataset.favorite === product.id) updateFavoriteButton(button, product);
+    }
     showStatus(isFavorite ? `${product.name} removed from favorites.` : `${product.name} added to favorites.`);
   });
   visual.append(favorite);
@@ -150,6 +154,99 @@ function productCard(product) {
   return card;
 }
 
+function updateFavoriteButton(button, product) {
+  const saved = favoriteIds.has(product.id);
+  button.setAttribute("aria-pressed", String(saved));
+  button.setAttribute("aria-label", saved ? `Remove ${product.name} from favorites` : `Add ${product.name} to favorites`);
+}
+
+function renderFeaturedProducts() {
+  const section = document.querySelector(".featured-products");
+  const track = section.querySelector(".featured-track");
+  const backdrops = section.querySelectorAll("[data-backdrop]");
+  const featuredIds = ["ocean-breeze", "royal-amber", "floral-dream", "musk-bloom", "black-oud"];
+  const featured = featuredIds.map((id) => products.find((item) => item.id === id)).filter(Boolean);
+  if (!featured.length) return;
+
+  const looping = featured.length > 1;
+  const lineup = looping ? [...featured, ...featured, ...featured] : featured;
+  const cards = lineup.map((product, index) => {
+    const card = productCard(
+      product,
+      product.id === "royal-amber" ? "images/royal-amber-featured.png" : undefined,
+    );
+    card.dataset.featuredProduct = product.id;
+    const panel = document.createElement("div");
+    panel.className = "featured-details";
+    const info = card.querySelector(".product-info");
+    const actions = card.querySelector(".product-card-actions");
+    const button = actions.querySelector("button");
+    button.setAttribute("aria-label", `Add ${product.name} to cart`);
+    button.innerHTML = '<span class="featured-bag-icon" aria-hidden="true"></span><span class="featured-cart-label" aria-hidden="true">Add to cart</span>';
+    actions.prepend(info.querySelector(".product-price"));
+    panel.append(info, actions);
+    card.append(panel);
+    if (looping && (index < featured.length || index >= 2 * featured.length)) {
+      for (const control of card.querySelectorAll("a, button")) control.tabIndex = -1;
+    }
+    return card;
+  });
+  let active = looping ? featured.length + 1 : 0;
+  let target = null;
+  let settleTimer;
+
+  function highlight(index) {
+    if (active !== index) cards[active].classList.remove("featured-active");
+    active = index;
+    cards[active].classList.add("featured-active");
+    const productId = lineup[index].id;
+    if (section.dataset.featuredProduct === productId) return;
+    section.dataset.featuredProduct = productId;
+    backdrops.forEach((image) => image.classList.toggle("is-active", image.dataset.backdrop === productId));
+  }
+
+  function centerCard(index, behavior) {
+    const card = cards[index];
+    const left = card.offsetLeft - (track.clientWidth - card.offsetWidth) / 2;
+    const motion = matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : behavior;
+    track.scrollTo({ left, behavior: motion });
+    if (motion === "instant") highlight(index);
+  }
+
+  track.append(...cards);
+  section.hidden = false;
+  centerCard(active, "instant");
+  let trackWidth = track.clientWidth;
+  window.addEventListener("resize", () => {
+    if (track.clientWidth === trackWidth) return;
+    trackWidth = track.clientWidth;
+    target = null;
+    centerCard(active, "instant");
+  });
+  track.addEventListener("scroll", () => {
+    const center = track.scrollLeft + track.clientWidth / 2;
+    const nearest = cards.reduce((best, card, index) =>
+      Math.abs(card.offsetLeft + card.offsetWidth / 2 - center) <
+      Math.abs(cards[best].offsetLeft + cards[best].offsetWidth / 2 - center) ? index : best, 0);
+    highlight(nearest);
+    window.clearTimeout(settleTimer);
+    settleTimer = window.setTimeout(() => {
+      target = null;
+      if (!looping || (active >= featured.length && active < 2 * featured.length)) return;
+      track.classList.add("featured-reset");
+      centerCard(featured.length + active % featured.length, "instant");
+      requestAnimationFrame(() => requestAnimationFrame(() => track.classList.remove("featured-reset")));
+    }, 140);
+  }, { passive: true });
+  for (const arrow of section.querySelectorAll("[data-featured-direction]")) {
+    arrow.disabled = !looping;
+    arrow.addEventListener("click", () => {
+      target = Math.max(0, Math.min(cards.length - 1, (target ?? active) + Number(arrow.dataset.featuredDirection)));
+      centerCard(target, "smooth");
+    });
+  }
+}
+
 function updateCategoryControls() {
   categoryTabs.forEach((tab) => tab.setAttribute("aria-pressed", String(tab.dataset.category === selectedCategory)));
   categoryFilters.forEach((input) => {
@@ -171,7 +268,7 @@ function updateCategoryCounts() {
 
 function renderProducts() {
   const visibleProducts = getVisibleProducts();
-  productGrid.replaceChildren(...visibleProducts.map(productCard));
+  productGrid.replaceChildren(...visibleProducts.map((product) => productCard(product)));
   emptyState.hidden = visibleProducts.length > 0;
   const count = visibleProducts.length;
   resultCount.textContent = `${count} ${count === 1 ? "result" : "results"}`;
@@ -327,3 +424,4 @@ updateFilterPanelForViewport();
 updateCategoryCounts();
 updateCategoryControls();
 renderProducts();
+renderFeaturedProducts();

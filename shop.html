@@ -48,6 +48,24 @@
         </div>
       </section>
 
+      <section class="featured-products" aria-labelledby="featured-title" hidden>
+        <div class="featured-backdrops" aria-hidden="true">
+          <img data-backdrop="ocean-breeze" src="images/featured-glass-ocean.webp" alt="" />
+          <img data-backdrop="royal-amber" src="images/featured-glass-amber.webp" alt="" />
+          <img data-backdrop="floral-dream" src="images/featured-glass-lavender.webp" alt="" />
+          <img data-backdrop="musk-bloom" src="images/featured-glass-backdrop.webp" alt="" />
+        </div>
+        <header class="featured-heading">
+          <p>Featured products</p>
+          <h2 id="featured-title">Timeless Fragrances</h2>
+        </header>
+        <div class="featured-carousel">
+          <button class="featured-arrow" type="button" data-featured-direction="-1" aria-controls="featured-track" aria-label="Previous featured fragrance"></button>
+          <div class="featured-track" id="featured-track"></div>
+          <button class="featured-arrow" type="button" data-featured-direction="1" aria-controls="featured-track" aria-label="Next featured fragrance"></button>
+        </div>
+      </section>
+
       <section
         class="shop-content"
         id="collection"
