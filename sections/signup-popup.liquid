@@ -1,0 +1,185 @@
+{% style %}
+akco-signup-popup {
+  .signup-dialog {
+    box-sizing: border-box;
+    width: min(960px, calc(100vw - 40px));
+    max-width: none;
+    max-height: calc(100dvh - 32px);
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    overflow: auto;
+    background: #fff;
+    color: #1b1714;
+    box-shadow: 0 24px 80px rgb(0 0 0 / 28%);
+  }
+  .signup-dialog[open] { animation: signup-enter .35s cubic-bezier(.22, 1, .36, 1) both; }
+  .signup-dialog::backdrop { background: rgb(15 13 12 / 72%); }
+  .signup-layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); min-height: 550px; }
+  .signup-visual { position: relative; overflow: hidden; background: #392316; }
+  .signup-editorial-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+  .signup-content {
+    align-self: center;
+    padding: 60px clamp(24px, 4vw, 50px) 42px;
+    text-align: center;
+  }
+  .signup-close {
+    position: absolute; z-index: 2; top: 10px; right: 10px;
+    width: 44px; height: 44px; display: grid; place-items: center;
+    padding: 0; border: 0; border-radius: 50%; background: #fff; color: #1b1714;
+    font: 400 30px/1 Arial, sans-serif; cursor: pointer;
+  }
+  .signup-close:hover { background: #f0ece7; }
+  .signup-dialog :is(button, input, a):focus-visible { outline: 2px solid #8b6220; outline-offset: 3px; }
+  .signup-eyebrow { margin: 0 0 22px; font-size: 1.15rem; font-weight: 600; letter-spacing: .28em; }
+  .signup-dialog h2 { margin: 0; font: 400 clamp(32px, 4vw, 52px)/1.08 var(--serif, Georgia, serif); }
+  .signup-copy { margin: 13px 0 22px; font-size: 1rem; line-height: 1.5; }
+  .signup-form { display: grid; gap: 10px; }
+  .signup-form input, .signup-form button { box-sizing: border-box; width: 100%; min-height: 48px; border-radius: 6px; font: inherit; }
+  .signup-form input { padding: 0 14px; border: 1px solid #a79f96; background: #fff; color: #1b1714; }
+  .signup-form button { padding: 12px; border: 0; background: #1b1714; color: #fff; font-weight: 600; letter-spacing: .08em; cursor: pointer; transition: background .2s; }
+  .signup-form button:hover { background: #523726; }
+  .signup-preview-note, .signup-status { margin: 12px 0 0; color: #625850; font-size: .8125rem; line-height: 1.5; }
+  .signup-preview-note a { text-decoration: underline; }
+  .signup-status:empty { display: none; }
+  .signup-visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+  @media (max-width: 760px) {
+    .signup-dialog { width: calc(100vw - 24px); }
+    .signup-layout { grid-template-columns: 1fr; min-height: 0; }
+    .signup-visual { height: clamp(190px, 56vw, 270px); }
+    .signup-editorial-image { object-position: 50% 49%; }
+    .signup-content { padding: 24px 20px; }
+    .signup-eyebrow { margin-bottom: 12px; }
+    .signup-copy { margin: 9px 0 16px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .signup-dialog[open] { animation: none; }
+  }
+}
+@keyframes signup-enter {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+{% endstyle %}
+
+{% assign form_id = 'OfferSignup-' | append: section.id %}
+<akco-signup-popup data-delay="{{ section.settings.delay | times: 1000 }}">
+  <dialog class="signup-dialog" aria-labelledby="OfferTitle-{{ section.id }}">
+    <button type="button" class="signup-close" aria-label="Close offer" autofocus>×</button>
+    <div class="signup-layout">
+      <div class="signup-visual">
+        <img class="signup-editorial-image" src="{{ 'signup-akco-stay-awhile.png' | asset_url }}" width="1031" height="1525" alt="AK&amp;CO Stay Awhile fragrance in warm golden light" loading="lazy">
+      </div>
+      <div class="signup-content">
+        <p class="signup-eyebrow">{{ shop.name | escape }}</p>
+        <h2 id="OfferTitle-{{ section.id }}">
+          {% if section.settings.discount_code != blank %}
+            {{ section.settings.offer_heading | escape }}
+          {% else %}
+            Sign up for our emails
+          {% endif %}
+        </h2>
+        <p class="signup-copy">
+          {% if section.settings.discount_code != blank %}
+            Sign up to get your discount code.
+          {% else %}
+            Hear about new fragrances and offers.
+          {% endif %}
+        </p>
+        {% form 'customer', id: form_id, class: 'signup-form' %}
+          {% if form.posted_successfully? %}
+            <p class="signup-status" data-signup-result role="status">
+              Thanks for signing up!
+              {% if section.settings.discount_code != blank %}
+                Use <strong>{{ section.settings.discount_code | escape }}</strong> at checkout.
+              {% endif %}
+            </p>
+          {% else %}
+            {% if form.errors %}
+              <div class="signup-status" data-signup-result role="alert">{{ form.errors | default_errors }}</div>
+            {% endif %}
+            <input type="hidden" name="contact[tags]" value="newsletter">
+            <label class="signup-visually-hidden" for="OfferEmail-{{ section.id }}">Email address</label>
+            <input id="OfferEmail-{{ section.id }}" type="email" name="contact[email]" value="{{ form.email | escape }}" autocomplete="email" placeholder="Email address" required>
+            <button type="submit">
+              {% if section.settings.discount_code != blank %}Claim my offer{% else %}Sign up{% endif %}
+            </button>
+          {% endif %}
+        {% endform %}
+        <p class="signup-preview-note">
+          By signing up, you agree to receive marketing emails. You can unsubscribe at any time.
+          {% if shop.privacy_policy.url != blank %}
+            <a href="{{ shop.privacy_policy.url }}">Privacy Policy</a>
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  </dialog>
+</akco-signup-popup>
+
+{% javascript %}
+if (!customElements.get('akco-signup-popup')) {
+  customElements.define('akco-signup-popup', class extends HTMLElement {
+    connectedCallback() {
+      this.controller = new AbortController();
+      const { signal } = this.controller;
+      const dialog = this.querySelector('dialog');
+      const storageKey = 'akco-shopify-signup-shown';
+      const show = () => {
+        if (!document.querySelector('dialog[open]')) dialog.showModal();
+      };
+
+      dialog.querySelector('.signup-close').addEventListener('click', () => dialog.close(), { signal });
+      dialog.addEventListener('click', (event) => {
+        if (event.target === dialog) dialog.close();
+      }, { signal });
+
+      if (window.Shopify?.designMode) {
+        this.closest('.shopify-section')?.addEventListener('shopify:section:select', show, { signal });
+        return;
+      }
+
+      if (dialog.querySelector('[data-signup-result]')) {
+        show();
+        return;
+      }
+
+      try {
+        if (sessionStorage.getItem(storageKey)) return;
+      } catch {
+        // The offer can still open when storage is unavailable.
+      }
+
+      this.timer = setTimeout(() => {
+        show();
+        if (dialog.open) {
+          try {
+            sessionStorage.setItem(storageKey, 'true');
+          } catch {
+            // The current page still shows the offer only once.
+          }
+        }
+      }, Number(this.dataset.delay));
+    }
+
+    disconnectedCallback() {
+      clearTimeout(this.timer);
+      this.controller?.abort();
+    }
+  });
+}
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Signup popup",
+  "limit": 1,
+  "settings": [
+    { "type": "text", "id": "offer_heading", "label": "Offer headline", "default": "Unlock 10% off" },
+    { "type": "text", "id": "discount_code", "label": "Discount code", "info": "Enter a code already created in Shopify Discounts. Leave blank for newsletter signup without an offer." },
+    { "type": "range", "id": "delay", "label": "Delay before opening", "min": 2, "max": 30, "step": 1, "unit": "s", "default": 8 }
+  ],
+  "presets": [{ "name": "Signup popup" }]
+}
+{% endschema %}

@@ -13,29 +13,9 @@
 }
 .signup-dialog[open] { animation: signup-enter .35s cubic-bezier(.22, 1, .36, 1) both; }
 .signup-dialog::backdrop { background: rgb(15 13 12 / 72%); }
-.signup-layout { display: grid; grid-template-columns: 1fr 1fr; min-height: 530px; }
-.signup-visual {
-  position: relative;
-  isolation: isolate;
-  display: grid;
-  place-items: center;
-  align-content: center;
-  gap: 16px;
-  overflow: hidden;
-  padding: 32px 16px;
-  background: radial-gradient(ellipse at 58% 36%, #fff4de, transparent 66%), linear-gradient(145deg, #e6d2b6, #b99371);
-  color: #382519;
-  text-align: center;
-}
-.signup-visual p { margin: 0; font: 400 clamp(27px, 4vw, 44px)/1.08 var(--serif, Georgia, serif); }
-.signup-floating-image {
-  display: block;
-  width: min(78%, 330px);
-  height: clamp(220px, 36vw, 340px);
-  object-fit: contain;
-  filter: drop-shadow(0 24px 20px rgb(19 10 5 / 55%));
-  animation: signup-float 5s ease-in-out infinite;
-}
+.signup-layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); min-height: 550px; }
+.signup-visual { position: relative; overflow: hidden; background: #392316; }
+.signup-editorial-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
 .signup-content {
   align-self: center;
   padding: 60px clamp(24px, 4vw, 50px) 42px;
@@ -66,20 +46,15 @@
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
-@keyframes signup-float {
-  0%, 100% { transform: translateY(0) rotate(-7deg); }
-  50% { transform: translateY(-12px) rotate(-3deg); }
-}
-@media (max-width: 620px) {
+@media (max-width: 760px) {
   .signup-dialog { width: calc(100vw - 24px); }
   .signup-layout { grid-template-columns: 1fr; min-height: 0; }
-  .signup-visual { padding: 16px 12px; gap: 4px; }
-  .signup-floating-image { width: 145px; height: 135px; }
-  .signup-visual p { font-size: 25px; }
+  .signup-visual { height: clamp(190px, 56vw, 270px); }
+  .signup-editorial-image { object-position: 50% 49%; }
   .signup-content { padding: 24px 20px; }
   .signup-eyebrow { margin-bottom: 12px; }
   .signup-copy { margin: 9px 0 16px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .signup-dialog[open], .signup-floating-image { animation: none; }
+  .signup-dialog[open] { animation: none; }
 }
