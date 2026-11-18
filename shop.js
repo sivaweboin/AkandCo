@@ -46,8 +46,8 @@ let statusTimeout;
 
 if (!(selectedCategory in categoryNames)) selectedCategory = "all";
 
-function optimizedImage(filename, width = 560) {
-  return `${window.AKCO.imageBase}${encodeURIComponent(filename)}&w=${width}&fm=webp&q=75`;
+function productImageUrl(filename) {
+  return `${window.AKCO.imageBase}${encodeURIComponent(filename)}`;
 }
 
 function getVisibleProducts() {
@@ -69,7 +69,7 @@ function getVisibleProducts() {
   return visible;
 }
 
-function productCard(product, imageSource = optimizedImage(product.image)) {
+function productCard(product, imageSource = productImageUrl(product.image)) {
   const card = document.createElement("article");
   card.className = "product-card";
 

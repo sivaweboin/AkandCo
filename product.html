@@ -6,7 +6,6 @@
     <meta name="theme-color" content="#031206">
     <meta name="description" content="Explore an AK&CO fragrance and choose your preferred bottle size.">
     <title>Fragrance | AK&amp;CO</title>
-    <link rel="preconnect" href="https://elegant-yeot-488b39.netlify.app">
     <style>
 /* product.css */
 :root {
@@ -58,8 +57,10 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--gold); outline-
 .product-information h1, .product-not-found h1 { margin: 0; font-family: var(--serif); font-size: clamp(42px, 5vw, 58px); font-weight: 400; line-height: 1.1; }
 .product-rating { display: flex; align-items: center; gap: 8px; margin: 12px 0 0; color: var(--muted); font-size: .8125rem; }
 .product-rating-stars { color: var(--gold); font-size: 19px; letter-spacing: .08em; line-height: 1; }
-.product-price-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-top: 20px; padding-bottom: 20px; border-bottom: 1px solid #e6e5e1; }
+.product-price-row { display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 12px; margin-top: 20px; padding-bottom: 20px; border-bottom: 1px solid #e6e5e1; }
 .product-price { margin: 0; font-size: 1.25rem; font-weight: 500; }
+.product-price-tagline { max-width: 34rem; margin: 0; color: var(--muted); font-family: var(--serif); font-size: 1rem; font-style: italic; line-height: 1.5; }
+.product-price-tagline[hidden] { display: none; }
 .product-price-row > span { color: var(--muted); font-size: .75rem; }
 .size-picker { margin: 25px 0 0; padding: 0; border: 0; }
 .size-picker legend { margin-bottom: 12px; font-size: .8125rem; font-weight: 600; }
@@ -756,6 +757,7 @@ body:has(.cart-drawer[open]) {
 
           <div class="product-price-row">
             <p class="product-price" id="product-price" aria-live="polite"></p>
+            <p class="product-price-tagline" id="product-price-tagline" hidden></p>
           </div>
 
           <fieldset class="size-picker">
@@ -780,7 +782,7 @@ body:has(.cart-drawer[open]) {
           <div class="product-details-panel">
             <details class="product-details">
               <summary>Product details</summary>
-              <p id="product-detail-copy"></p>
+              <div id="product-detail-copy"></div>
             </details>
             <details class="product-details">
               <summary>Shipping information</summary>
@@ -887,18 +889,20 @@ body:has(.cart-drawer[open]) {
     <script>
 // product-data.js
 window.AKCO = window.AKCO || {};
-window.AKCO.imageBase = "https://elegant-yeot-488b39.netlify.app/.netlify/images?url=%2Fimages%2F";
+window.AKCO.imageBase = "images/";
 window.AKCO.products = [
+  { id: "amber-coffee", name: "Amber Coffee", type: "Perfume", size: "10ml", category: "perfumes", price: 249, image: "amber-coffee.png", description: "Indulge in the irresistible richness of coffee! Experience a luxurious blend of aromatic spices, delicious praline and rich coffee, beautifully wrapped in creamy vanilla and warm tonka beans. A captivating fragrance that leaves a sweet, elegant and unforgettable impression.", priceTagline: "\"Where Arabian Coffee Meets Pure Elegance.\" It's elegant, memorable and communicates the fragrance character beautifully.", tagline: "Warmth. Sweetness. Pure Indulgence." },
+  { id: "vampire-blood", name: "Vampire Blood", type: "Perfume", size: "10ml", category: "perfumes", price: 249, image: "vampire-blood.png", inspiredBy: "Bath & Body Works", notes: "Red Berries, Plum and Jasmine", headline: "UNLEASH YOUR DARK SIDE", description: "Indulge in an irresistible blend of juicy red berries, enchanting night-blooming jasmine and rich dark plum. A deliciously sweet and mysterious fragrance that creates a captivating impression wherever you go.", character: "JUICY • SWEET • FLORAL • MYSTERIOUS", tagline: "A fragrance that's impossible to forget.", bestSuitedFor: ["Everyday wear", "Casual outings", "Evening occasions", "Parties and celebrations", "Customers who love sweet fruity fragrances"] },
   // { id: "oud-al-ameer", name: "Oud Al Ameer", type: "Eau de Parfum", size: "100ml", category: "perfumes", price: 4250, image: "oud-al-ameer-gold.jpg", badge: "Signature" },
-  { id: "royal-amber", name: "Royal Amber", type: "Eau de Parfum", size: "100ml", category: "perfumes", price: 3950, image: "p10.png", badge: "Bestseller" },
-  { id: "musk-bloom", name: "Musk Bloom", type: "Eau de Parfum", size: "100ml", category: "perfumes", price: 3750, image: "p4.png" },
-  { id: "sandalwood", name: "Sandalwood", type: "Attar", size: "12ml", category: "attars", price: 2450, image: "p1.png" },
-  { id: "black-oud", name: "Black Oud", type: "Eau de Parfum", size: "100ml", category: "perfumes", price: 4750, image: "p3.png", badge: "For the evening" },
-  { id: "amber-essence", name: "Amber Essence", type: "Attar", size: "12ml", category: "attars", price: 2250, image: "p9.png" },
-  { id: "ocean-breeze", name: "Ocean Breeze", type: "Eau de Parfum", size: "100ml", category: "perfumes", price: 3850, image: "p6.png" },
-  { id: "forest-soul", name: "Forest Soul", type: "Eau de Parfum", size: "100ml", category: "perfumes", price: 3950, image: "p7.png" },
-  { id: "floral-dream", name: "Floral Dream", type: "Eau de Parfum", size: "100ml", category: "perfumes", price: 3650, image: "p8.png" },
-  { id: "vanilla-noir", name: "Vanilla Noir", type: "Eau de Parfum", size: "100ml", category: "perfumes", price: 4150, image: "p2.png" }
+  { id: "royal-amber", name: "Royal Amber", type: "Eau de Parfum", size: "10ml", category: "perfumes", price: 249, image: "royal-amber-featured.png", badge: "Bestseller" },
+  { id: "musk-bloom", name: "Musk Bloom", type: "Eau de Parfum", size: "10ml", category: "perfumes", price: 249, image: "signup-musk-bloom.png" },
+  { id: "sandalwood", name: "Sandalwood", type: "Attar", size: "3ml", category: "attars", price: 149, image: "p1.webp" },
+  { id: "black-oud", name: "Black Oud", type: "Eau de Parfum", size: "10ml", category: "perfumes", price: 249, image: "p3.webp", badge: "For the evening" },
+  { id: "amber-essence", name: "Amber Essence", type: "Attar", size: "3ml", category: "attars", price: 149, image: "p9.webp" },
+  { id: "ocean-breeze", name: "Ocean Breeze", type: "Eau de Parfum", size: "10ml", category: "perfumes", price: 249, image: "p6.webp" },
+  { id: "forest-soul", name: "Forest Soul", type: "Eau de Parfum", size: "10ml", category: "perfumes", price: 249, image: "p7.webp" },
+  { id: "floral-dream", name: "Floral Dream", type: "Eau de Parfum", size: "10ml", category: "perfumes", price: 249, image: "p8.webp" },
+  { id: "vanilla-noir", name: "Vanilla Noir", type: "Eau de Parfum", size: "10ml", category: "perfumes", price: 249, image: "p2.webp" }
 ];
     </script>
     <script>
@@ -992,7 +996,7 @@ window.AKCO.products = [
       </div>
     `;
     const image = row.querySelector("img");
-    image.src = `${imageBase}${encodeURIComponent(product.image)}&w=160&fm=webp&q=75`;
+    image.src = `${imageBase}${encodeURIComponent(product.image)}`;
     image.addEventListener("error", () => image.removeAttribute("src"), { once: true });
     row.querySelector("h3").textContent = product.name;
     row.querySelector(".cart-variant").textContent = `${item.size} ml · ${currency.format(item.price)} each`;
@@ -1108,12 +1112,18 @@ if (!product) {
   const productImage = document.querySelector("#product-image");
   const imageFrame = document.querySelector(".product-image-frame");
   const galleryProducts = window.AKCO.products;
-  const sizeOptions = product.type === "Attar" ? [10, 20] : [10, 20, 50];
+  const priceBySize = product.category === "attars" ? { 3: 149, 6: 299, 12: 599 } : { 10: 249, 30: 599, 50: 999, 100: 1499 };
+  const sizeOptions = Object.keys(priceBySize).map(Number);
   const baseSize = Number.parseInt(product.size, 10);
   const sizeOptionsContainer = document.querySelector("#size-options");
   const galleryNavigation = document.querySelector("#gallery-navigation");
   const badge = document.querySelector("#product-badge");
   const priceOutput = document.querySelector("#product-price");
+  const priceTagline = document.querySelector("#product-price-tagline");
+  if (product.priceTagline) {
+    priceTagline.textContent = product.priceTagline;
+    priceTagline.hidden = false;
+  }
   const quantityOutput = document.querySelector("#quantity-value");
   const status = document.querySelector("#product-status");
   const addButton = document.querySelector("#add-to-bag");
@@ -1134,10 +1144,21 @@ if (!product) {
   document.title = `${product.name} | AK&CO`;
   document.querySelector("#product-name").textContent = product.name;
   document.querySelector("#product-category").textContent =
-    product.category === "attars" ? "ATTAR" : "EAU DE PARFUM";
+    product.category === "attars" ? "ATTAR" : product.type.toUpperCase();
 
-  document.querySelector("#product-detail-copy").textContent =
-    `${product.name} is part of the AK&CO collection. Choose a size to see its preview price.`;
+  const detailCopy = document.querySelector("#product-detail-copy");
+  if (product.description) {
+    const lines = [product.inspiredBy && "Inspired by " + product.inspiredBy, product.notes && "Fragrance notes: " + product.notes,
+      product.headline, product.description, product.character, product.tagline,
+      product.bestSuitedFor && "Best suited for: " + product.bestSuitedFor.join(" · ")];
+    lines.filter(Boolean).forEach((line) => {
+      const paragraph = document.createElement("p");
+      paragraph.textContent = line;
+      detailCopy.append(paragraph);
+    });
+  } else {
+    detailCopy.textContent = product.name + " is part of the AK&CO collection. Choose a size to see its preview price.";
+  }
 
   function recommendationCard(item) {
     const card = document.createElement("article");
@@ -1147,7 +1168,7 @@ if (!product) {
     const frame = document.createElement("div");
     frame.className = "recommendation-image";
     const image = document.createElement("img");
-    image.src = `${window.AKCO.imageBase}${encodeURIComponent(item.image)}&w=480&fm=webp&q=75`;
+    image.src = `${window.AKCO.imageBase}${encodeURIComponent(item.image)}`;
     image.alt = "";
     image.loading = "lazy";
     image.decoding = "async";
@@ -1184,7 +1205,7 @@ if (!product) {
 
   function getProductPrice(item) {
     if (item.id !== product.id) return item.price;
-    return Math.round((item.price * selectedSize) / baseSize / 50) * 50;
+    return priceBySize[selectedSize];
   }
 
   function cartEntry(item, quantity = 1) {
@@ -1200,7 +1221,7 @@ if (!product) {
     activeImageIndex =
       (index + galleryProducts.length) % galleryProducts.length;
     const activeImage = galleryProducts[activeImageIndex];
-    const imageUrl = `${window.AKCO.imageBase}${encodeURIComponent(activeImage.image)}&w=1200&fm=webp&q=75`;
+    const imageUrl = `${window.AKCO.imageBase}${encodeURIComponent(activeImage.image)}`;
     productImage.hidden = false;
     imageFrame.classList.remove("image-unavailable");
     productImage.dataset.currentImage = imageUrl;

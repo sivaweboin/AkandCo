@@ -87,7 +87,7 @@
       </div>
     `;
     const image = row.querySelector("img");
-    image.src = `${imageBase}${encodeURIComponent(product.image)}&w=160&fm=webp&q=75`;
+    image.src = `${imageBase}${encodeURIComponent(product.image)}`;
     image.addEventListener("error", () => image.removeAttribute("src"), { once: true });
     row.querySelector("h3").textContent = product.name;
     row.querySelector(".cart-variant").textContent = `${item.size} ml · ${currency.format(item.price)} each`;

@@ -1,0 +1,28 @@
+{
+  "number": "04",
+  "name": "Vampire Blood",
+  "inspiredBy": "Bath & Body Works",
+  "fragranceNotes": [
+    "Red Berries",
+    "Plum",
+    "Jasmine"
+  ],
+  "headline": "UNLEASH YOUR DARK SIDE",
+  "description": "Indulge in an irresistible blend of juicy red berries, enchanting night-blooming jasmine and rich dark plum. A deliciously sweet and mysterious fragrance that creates a captivating impression wherever you go.",
+  "character": [
+    "JUICY",
+    "SWEET",
+    "FLORAL",
+    "MYSTERIOUS"
+  ],
+  "tagline": "A fragrance that's impossible to forget.",
+  "bestSuitedFor": [
+    "Everyday wear",
+    "Casual outings",
+    "Evening occasions",
+    "Parties and celebrations",
+    "Customers who love sweet fruity fragrances"
+  ],
+  "incompleteSource": "Those who enjo",
+  "image": "images/vampire-blood.png"
+}

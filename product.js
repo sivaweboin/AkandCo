@@ -15,12 +15,18 @@ if (!product) {
   const productImage = document.querySelector("#product-image");
   const imageFrame = document.querySelector(".product-image-frame");
   const galleryProducts = window.AKCO.products;
-  const sizeOptions = product.type === "Attar" ? [10, 20] : [10, 20, 50];
+  const priceBySize = product.category === "attars" ? { 3: 149, 6: 299, 12: 599 } : { 10: 249, 30: 599, 50: 999, 100: 1499 };
+  const sizeOptions = Object.keys(priceBySize).map(Number);
   const baseSize = Number.parseInt(product.size, 10);
   const sizeOptionsContainer = document.querySelector("#size-options");
   const galleryNavigation = document.querySelector("#gallery-navigation");
   const badge = document.querySelector("#product-badge");
   const priceOutput = document.querySelector("#product-price");
+  const priceTagline = document.querySelector("#product-price-tagline");
+  if (product.priceTagline) {
+    priceTagline.textContent = product.priceTagline;
+    priceTagline.hidden = false;
+  }
   const quantityOutput = document.querySelector("#quantity-value");
   const status = document.querySelector("#product-status");
   const addButton = document.querySelector("#add-to-bag");
@@ -41,10 +47,21 @@ if (!product) {
   document.title = `${product.name} | AK&CO`;
   document.querySelector("#product-name").textContent = product.name;
   document.querySelector("#product-category").textContent =
-    product.category === "attars" ? "ATTAR" : "EAU DE PARFUM";
+    product.category === "attars" ? "ATTAR" : product.type.toUpperCase();
 
-  document.querySelector("#product-detail-copy").textContent =
-    `${product.name} is part of the AK&CO collection. Choose a size to see its preview price.`;
+  const detailCopy = document.querySelector("#product-detail-copy");
+  if (product.description) {
+    const lines = [product.inspiredBy && "Inspired by " + product.inspiredBy, product.notes && "Fragrance notes: " + product.notes,
+      product.headline, product.description, product.character, product.tagline,
+      product.bestSuitedFor && "Best suited for: " + product.bestSuitedFor.join(" · ")];
+    lines.filter(Boolean).forEach((line) => {
+      const paragraph = document.createElement("p");
+      paragraph.textContent = line;
+      detailCopy.append(paragraph);
+    });
+  } else {
+    detailCopy.textContent = product.name + " is part of the AK&CO collection. Choose a size to see its preview price.";
+  }
 
   function recommendationCard(item) {
     const card = document.createElement("article");
@@ -54,7 +71,7 @@ if (!product) {
     const frame = document.createElement("div");
     frame.className = "recommendation-image";
     const image = document.createElement("img");
-    image.src = `${window.AKCO.imageBase}${encodeURIComponent(item.image)}&w=480&fm=webp&q=75`;
+    image.src = `${window.AKCO.imageBase}${encodeURIComponent(item.image)}`;
     image.alt = "";
     image.loading = "lazy";
     image.decoding = "async";
@@ -91,7 +108,7 @@ if (!product) {
 
   function getProductPrice(item) {
     if (item.id !== product.id) return item.price;
-    return Math.round((item.price * selectedSize) / baseSize / 50) * 50;
+    return priceBySize[selectedSize];
   }
 
   function cartEntry(item, quantity = 1) {
@@ -107,7 +124,7 @@ if (!product) {
     activeImageIndex =
       (index + galleryProducts.length) % galleryProducts.length;
     const activeImage = galleryProducts[activeImageIndex];
-    const imageUrl = `${window.AKCO.imageBase}${encodeURIComponent(activeImage.image)}&w=1200&fm=webp&q=75`;
+    const imageUrl = `${window.AKCO.imageBase}${encodeURIComponent(activeImage.image)}`;
     productImage.hidden = false;
     imageFrame.classList.remove("image-unavailable");
     productImage.dataset.currentImage = imageUrl;
