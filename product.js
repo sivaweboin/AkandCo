@@ -30,6 +30,9 @@ if (!product) {
   const quantityOutput = document.querySelector("#quantity-value");
   const status = document.querySelector("#product-status");
   const addButton = document.querySelector("#add-to-bag");
+  const stickyPurchase = document.querySelector("#sticky-purchase");
+  const stickyAddButton = document.querySelector("#sticky-add-to-bag");
+  const stickySummary = document.querySelector("#sticky-purchase-summary");
   const buyNowButton = document.querySelector("#buy-now");
   const pairingSection = document.querySelector("#frequently-bought");
   const pairingTrack = document.querySelector("#pairing-track");
@@ -46,6 +49,9 @@ if (!product) {
 
   document.title = `${product.name} | AK&CO`;
   document.querySelector("#product-name").textContent = product.name;
+  document.querySelector("#sticky-purchase-name").textContent = product.name;
+  document.querySelector("#sticky-purchase-thumbnail").src =
+    `${window.AKCO.imageBase}${encodeURIComponent(product.image)}`;
   document.querySelector("#product-category").textContent =
     product.category === "attars" ? "ATTAR" : product.type.toUpperCase();
 
@@ -105,6 +111,36 @@ if (!product) {
     relatedSection.hidden = false;
     pairingSection.hidden = false;
   }
+
+  function updateRecentlyViewed() {
+    const recentlyViewedKey = "akco-recently-viewed";
+    const recentlyViewedLimit = 6;
+    let viewedIds = [];
+    try {
+      const stored = JSON.parse(localStorage.getItem(recentlyViewedKey));
+      if (Array.isArray(stored)) viewedIds = stored;
+    } catch {
+      // Start with an empty history when storage is unavailable or invalid.
+    }
+
+    const previousProducts = [...new Set(viewedIds)]
+      .map((id) => otherProducts.find((item) => item.id === id))
+      .filter(Boolean)
+      .slice(0, recentlyViewedLimit);
+    document.querySelector("#recently-viewed-grid").replaceChildren(...previousProducts.map(recommendationCard));
+    document.querySelector("#recently-viewed").hidden = previousProducts.length === 0;
+
+    try {
+      const updatedIds = [product.id, ...previousProducts.map((item) => item.id)];
+      localStorage.setItem(recentlyViewedKey, JSON.stringify(updatedIds));
+    } catch {
+      // Browsing and cart actions still work when storage is unavailable.
+    }
+  }
+  updateRecentlyViewed();
+  window.addEventListener("pageshow", (event) => {
+    if (event.persisted) updateRecentlyViewed();
+  });
 
   function getProductPrice(item) {
     if (item.id !== product.id) return item.price;
@@ -219,8 +255,11 @@ if (!product) {
     imageFrame.classList.add("image-unavailable");
   });
 
-  function updatePrice() {
-    priceOutput.textContent = formatter.format(getProductPrice(product));
+  function updatePurchaseSummary() {
+    const unitPrice = getProductPrice(product);
+    priceOutput.textContent = formatter.format(unitPrice);
+    quantityOutput.textContent = String(quantity);
+    stickySummary.textContent = `${selectedSize} ml × ${quantity} · ${formatter.format(unitPrice * quantity)}`;
   }
 
   sizeOptions.forEach((size) => {
@@ -239,24 +278,38 @@ if (!product) {
             String(Number.parseInt(button.textContent, 10) === selectedSize),
           );
         });
-      updatePrice();
+      updatePurchaseSummary();
     });
     sizeOptionsContainer.append(option);
   });
-  updatePrice();
+  updatePurchaseSummary();
 
   document.querySelector("#decrease-quantity").addEventListener("click", () => {
     quantity = Math.max(1, quantity - 1);
-    quantityOutput.textContent = String(quantity);
+    updatePurchaseSummary();
   });
   document.querySelector("#increase-quantity").addEventListener("click", () => {
     quantity = Math.min(10, quantity + 1);
-    quantityOutput.textContent = String(quantity);
+    updatePurchaseSummary();
   });
 
-  addButton.addEventListener("click", () => {
+  function addSelectionToCart() {
     window.AKCO.cart.add([cartEntry(product, quantity)]);
-  });
+  }
+
+  addButton.addEventListener("click", addSelectionToCart);
+  stickyAddButton.addEventListener("click", addSelectionToCart);
+
+  function updateStickyPurchase() {
+    const visible = addButton.getBoundingClientRect().bottom <= 0;
+    stickyPurchase.classList.toggle("is-visible", visible);
+    stickyPurchase.inert = !visible;
+  }
+
+  window.addEventListener("scroll", updateStickyPurchase, { passive: true });
+  window.addEventListener("resize", updateStickyPurchase);
+  window.addEventListener("load", updateStickyPurchase);
+  updateStickyPurchase();
 
   buyNowButton.addEventListener("click", () => {
     status.textContent =
