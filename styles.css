@@ -114,14 +114,13 @@ button, input, select, textarea { font: inherit; }
 .faq-section { padding-top: 92px; padding-bottom: 76px; }
 .section-heading { text-align: center; margin-bottom: 25px; }
 .section-heading h2 { margin-bottom: 0; font-size: 34px; }
-.faq-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
+.faq-list { width: min(100%, 420px); max-width: 100%; margin-inline: auto; display: grid; grid-template-columns: 1fr; gap: 10px; }
 .faq-list details { align-self: start; border: 1px solid var(--line); border-radius: 10px; background: #f5f4f0; }
-.faq-list summary { min-height: 54px; padding: 10px 17px; display: flex; align-items: center; justify-content: space-between; gap: 16px; list-style: none; cursor: pointer; font-size: .9375rem; font-weight: 500; }
+.faq-list summary { min-height: 54px; padding: 10px 40px; position: relative; display: flex; align-items: center; justify-content: center; gap: 16px; list-style: none; cursor: pointer; text-align: center; font-size: .9375rem; font-weight: 500; }
 .faq-list summary::-webkit-details-marker { display: none; }
-.faq-toggle { width: 15px; height: 15px; position: relative; flex: 0 0 auto; }
-.faq-toggle::before, .faq-toggle::after { content: ""; position: absolute; top: 7px; left: 2px; width: 11px; height: 1px; background: var(--gold); }
-.faq-toggle::after { transform: rotate(90deg); transition: transform .2s; }
-.faq-list details[open] .faq-toggle::after { transform: rotate(0); }
+.faq-toggle { width: 8px; height: 8px; position: absolute; right: 17px; flex: 0 0 auto; border-right: 1.5px solid var(--gold); border-bottom: 1.5px solid var(--gold); transform: rotate(45deg); transition: transform .6s ease; }
+.faq-list details[open] .faq-toggle { transform: rotate(225deg); }
+.faq-list details[data-expanded="false"] .faq-toggle { transform: rotate(45deg); }
 .faq-list details > p { margin: 0 17px 17px; max-width: 440px; color: var(--muted); font-size: .9375rem; line-height: 1.75; }
 
 .help-banner { min-height: 138px; margin-bottom: 73px; padding: 25px 6%; display: flex; align-items: center; gap: 25px; background: #e1dfd8; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
