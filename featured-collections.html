@@ -171,6 +171,7 @@ function renderFeaturedCollections() {
   let travel = 0;
   let frame = 0;
   let touchStart = null;
+  let manualScrollY = 0;
 
   function update() {
     frame = 0;
@@ -210,6 +211,7 @@ function renderFeaturedCollections() {
   }
 
   function useManualSwipe() {
+    manualScrollY = window.scrollY;
     section.setAttribute("data-manual-swipe", "");
   }
 
@@ -230,7 +232,7 @@ function renderFeaturedCollections() {
     if (event.key === "ArrowLeft" || event.key === "ArrowRight") useManualSwipe();
   });
   window.addEventListener("scroll", () => {
-    section.removeAttribute("data-manual-swipe");
+    if (window.scrollY !== manualScrollY) section.removeAttribute("data-manual-swipe");
     schedule();
   }, { passive: true });
   window.addEventListener("resize", measure);
