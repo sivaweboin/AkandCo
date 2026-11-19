@@ -24,46 +24,6 @@ a:focus-visible { outline: 2px solid var(--shop-gold); outline-offset: 3px; }
   .featured-collections { --featured-card-width: 74cqw; }
 }
 
-.featured-arrow {
-  position: absolute;
-  z-index: 2;
-  top: 50%;
-  right: clamp(8px, 2vw, 32px);
-  translate: 0 -50%;
-  display: grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  padding: 0;
-  border: 1px solid rgb(255 255 255 / 75%);
-  border-radius: 50%;
-  background: linear-gradient(145deg, rgb(255 255 255 / 76%), rgb(255 255 255 / 25%) 60%, rgb(255 255 255 / 50%));
-  box-shadow: inset 0 1px 3px rgb(255 255 255 / 70%), 0 4px 12px rgb(23 16 27 / 16%);
-  -webkit-backdrop-filter: blur(10px) saturate(1.35);
-  backdrop-filter: blur(10px) saturate(1.35);
-  color: var(--shop-ink);
-  cursor: pointer;
-  transition: box-shadow .2s ease, transform .2s ease;
-}
-.featured-arrow[data-featured-direction="-1"] {
-  right: auto;
-  left: clamp(8px, 2vw, 32px);
-}
-.featured-arrow::before {
-  content: "";
-  width: 9px;
-  height: 9px;
-  border: solid currentColor;
-  border-width: 0 2px 2px 0;
-  transform: translateX(-2px) rotate(-45deg);
-}
-.featured-arrow[data-featured-direction="-1"]::before { transform: translateX(2px) rotate(135deg); }
-.featured-arrow:hover:not(:disabled) { box-shadow: inset 0 1px 6px rgb(255 255 255 / 90%), 0 5px 14px rgb(23 16 27 / 23%); }
-.featured-arrow:active:not(:disabled) { transform: scale(.94); }
-.featured-arrow:disabled { opacity: .5; cursor: default; }
-@media (max-width: 620px) { .featured-arrow { width: 44px; height: 44px; } }
-@media (prefers-reduced-motion: reduce) { .featured-arrow { transition: none; } }
-
 .featured-collections { container-type: inline-size; }
 .featured-collections[data-pinned] {
   min-height: calc(100svh + var(--collections-travel));
@@ -94,23 +54,6 @@ a:focus-visible { outline: 2px solid var(--shop-gold); outline-offset: 3px; }
   border-radius: 999px;
   background: var(--shop-ink);
   color: white;
-}
-.collections-carousel { position: relative; min-width: 0; }
-.collections-carousel .featured-arrow[data-featured-direction="-1"] {
-  left: calc(clamp(8px, 2vw, 32px) + var(--collections-arrow-offset, 0px));
-}
-.featured-collections[data-pinned]:not([data-manual-swipe]) .collections-carousel {
-  --collections-arrow-offset: var(--collections-overlap, 0px);
-}
-@media (min-width: 761px) {
-  .featured-collections[data-manual-swipe] .collections-carousel {
-    --collections-arrow-offset: var(--collections-manual-overlap, 0px);
-  }
-}
-@media (min-width: 761px) and (prefers-reduced-motion: no-preference) {
-  .featured-collections[data-manual-swipe] .featured-arrow[data-featured-direction="-1"] {
-    transition: left .24s ease-out, box-shadow .2s ease, transform .2s ease;
-  }
 }
 .collections-rail {
   position: relative;
@@ -179,11 +122,7 @@ a:focus-visible { outline: 2px solid var(--shop-gold); outline-offset: 3px; }
             <p>Explore fragrances and attars from AK &amp; Co.</p>
             <a class="collections-shop" href="shop.html#collection">Shop new arrivals</a>
           </div>
-          <div class="collections-carousel">
-            <button class="featured-arrow" type="button" data-featured-direction="-1" aria-controls="collections-rail" aria-label="Previous collection fragrance"></button>
-            <div class="collections-rail" id="collections-rail" role="region" aria-label="Browse featured fragrances and attars" tabindex="0"></div>
-            <button class="featured-arrow" type="button" data-featured-direction="1" aria-controls="collections-rail" aria-label="Next collection fragrance"></button>
-          </div>
+          <div class="collections-rail" role="region" aria-label="Browse featured fragrances and attars" tabindex="0"></div>
         </div>
       </div>
     </section>
@@ -200,8 +139,6 @@ function renderFeaturedCollections() {
   const section = document.querySelector(".featured-collections");
   const pin = section.querySelector(".collections-pin");
   const rail = section.querySelector(".collections-rail");
-  const carousel = section.querySelector(".collections-carousel");
-  const [previous, next] = carousel.querySelectorAll(".featured-arrow");
   const ids = ["amber-coffee", "vampire-blood", "royal-amber", "musk-bloom", "sandalwood", "black-oud", "amber-essence"];
   const lineup = ids.map((id) => products.find((product) => product.id === id)).filter(Boolean);
   if (!lineup.length) return;
@@ -234,15 +171,15 @@ function renderFeaturedCollections() {
   let travel = 0;
   let frame = 0;
   let touchStart = null;
-  let manualScrollY = null;
+  let manualScrollY = 0;
 
   function update() {
     frame = 0;
-    if (!section.hasAttribute("data-pinned") || manualScrollY !== null || rail.contains(document.activeElement)) return;
+    if (!section.hasAttribute("data-pinned") || section.hasAttribute("data-manual-swipe") || rail.contains(document.activeElement)) return;
 
     const distance = Math.min(travel, Math.max(0, -section.getBoundingClientRect().top));
     const overlap = Math.min(sweep, distance);
-    carousel.style.setProperty("--collections-overlap", `${-overlap}px`);
+    rail.style.setProperty("--collections-overlap", `${-overlap}px`);
     section.style.setProperty("--collections-blur", `${sweep ? overlap / sweep * 5 : 0}px`);
     rail.scrollLeft = distance - overlap;
   }
@@ -252,14 +189,13 @@ function renderFeaturedCollections() {
   }
 
   function measure() {
-    manualScrollY = null;
     section.removeAttribute("data-manual-swipe");
     section.removeAttribute("data-pinned");
     sweep = Math.max(0, rail.getBoundingClientRect().left - section.getBoundingClientRect().left);
-    carousel.style.setProperty("--collections-manual-overlap", `${-sweep}px`);
+    rail.style.setProperty("--collections-manual-overlap", `${-sweep}px`);
     if (!motion.matches || rail.scrollWidth <= rail.clientWidth) return;
 
-    carousel.style.setProperty("--collections-overlap", `${-sweep}px`);
+    rail.style.setProperty("--collections-overlap", `${-sweep}px`);
     section.setAttribute("data-pinned", "");
     const height = pin.offsetHeight;
     const scrollable = rail.scrollWidth - rail.clientWidth;
@@ -279,30 +215,6 @@ function renderFeaturedCollections() {
     section.setAttribute("data-manual-swipe", "");
   }
 
-  function updateArrows() {
-    const maxScroll = rail.scrollWidth - rail.clientWidth;
-    previous.disabled = rail.scrollLeft <= 1;
-    next.disabled = rail.scrollLeft >= maxScroll - 1;
-    previous.hidden = next.hidden = maxScroll <= 1;
-  }
-
-  for (const arrow of [previous, next]) {
-    arrow.addEventListener("click", () => {
-      const [first, second] = rail.children;
-      const step = second ? second.offsetLeft - first.offsetLeft : rail.clientWidth;
-      const cardIndex = Math.round(rail.scrollLeft / step);
-      manualScrollY = window.scrollY;
-      rail.scrollTo({
-        left: step * (cardIndex + Number(arrow.dataset.featuredDirection)),
-        behavior: "instant",
-      });
-      updateArrows();
-    });
-  }
-  rail.addEventListener("scroll", updateArrows, { passive: true });
-  new ResizeObserver(updateArrows).observe(rail);
-  updateArrows();
-
   rail.addEventListener("wheel", (event) => {
     if (Math.abs(event.deltaX) > Math.abs(event.deltaY) || (event.shiftKey && event.deltaY)) useManualSwipe();
   }, { passive: true });
@@ -320,10 +232,7 @@ function renderFeaturedCollections() {
     if (event.key === "ArrowLeft" || event.key === "ArrowRight") useManualSwipe();
   });
   window.addEventListener("scroll", () => {
-    if (manualScrollY !== null && window.scrollY !== manualScrollY) {
-      manualScrollY = null;
-      section.removeAttribute("data-manual-swipe");
-    }
+    if (window.scrollY !== manualScrollY) section.removeAttribute("data-manual-swipe");
     schedule();
   }, { passive: true });
   window.addEventListener("resize", measure);
