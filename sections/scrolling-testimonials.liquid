@@ -1,0 +1,128 @@
+{%- assign testimonials = section.blocks | where: 'type', 'testimonial' -%}
+{%- assign visible_count = 0 -%}
+{%- for block in testimonials -%}
+  {%- if block.settings.quote != blank or request.design_mode -%}
+    {%- assign visible_count = visible_count | plus: 1 -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{% if visible_count > 0 or request.design_mode %}
+  {{ 'scrolling-testimonials.css' | asset_url | stylesheet_tag }}
+  {% assign heading_id = 'AkcoTestimonials-' | append: section.id %}
+  {% assign viewport_id = 'AkcoTestimonialsTrack-' | append: section.id %}
+  <akco-testimonials
+    class="akco-testimonials"
+    role="region"
+    aria-labelledby="{{ heading_id }}"
+    data-script="{{ 'scrolling-testimonials.js' | asset_url }}"
+  >
+    {% if section.settings.background_image != blank %}
+      {{ section.settings.background_image | image_url: width: 1600 | image_tag: class: 'akco-testimonials-backdrop', widths: '600, 1000, 1600', sizes: '100vw', loading: 'lazy', alt: '' }}
+    {% endif %}
+    <div class="akco-testimonials-header">
+      <h2 id="{{ heading_id }}">
+        {{ section.settings.heading | default: 'Scents worth' | escape }}
+        {% if section.settings.heading_accent != blank %}
+          <em>{{ section.settings.heading_accent | escape }}</em>
+        {% endif %}
+      </h2>
+      {% if section.settings.description != blank %}
+        <p class="akco-testimonials-summary">{{ section.settings.description | escape }}</p>
+      {% endif %}
+    </div>
+
+    {% if visible_count > 0 %}
+      <div class="akco-testimonials-viewport" id="{{ viewport_id }}" role="group" aria-label="Scrollable reviews" tabindex="0">
+        <div class="akco-testimonials-track">
+          <div class="akco-testimonials-group">
+            {% for block in testimonials %}
+              {% if block.settings.quote != blank or request.design_mode %}
+                <div class="akco-testimonials-slot" {{ block.shopify_attributes }}>
+                  <figure class="akco-testimonials-card" dir="auto">
+                    {% if block.settings.image != blank or block.settings.author != blank or block.settings.detail != blank %}
+                      <figcaption class="akco-testimonials-attribution">
+                        {% if block.settings.image != blank %}
+                          {{ block.settings.image | image_url: width: 100 | image_tag: class: 'akco-testimonials-image', widths: '50, 100', sizes: '50px', loading: 'lazy', alt: '' }}
+                        {% endif %}
+                        {% if block.settings.author != blank or block.settings.detail != blank %}
+                          <div>
+                            {% if block.settings.author != blank %}<strong>{{ block.settings.author | escape }}</strong>{% endif %}
+                            {% if block.settings.detail != blank %}<span>{{ block.settings.detail | escape }}</span>{% endif %}
+                          </div>
+                        {% endif %}
+                      </figcaption>
+                    {% endif %}
+                    <span class="akco-testimonials-quote-mark" aria-hidden="true">“</span>
+                    <blockquote>{{ block.settings.quote | default: 'Add a customer quote in the theme editor.' | escape }}</blockquote>
+                    {% if block.settings.rating > 0 %}
+                      <div class="akco-testimonials-stars" role="img" aria-label="{{ block.settings.rating }} out of 5 stars">
+                        <span aria-hidden="true">
+                          {%- for star in (1..5) -%}
+                            {%- if star <= block.settings.rating -%}★{%- else -%}☆{%- endif -%}
+                          {%- endfor -%}
+                        </span>
+                      </div>
+                    {% endif %}
+                  </figure>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <p class="akco-testimonials-empty">Add testimonial blocks to display customer quotes.</p>
+    {% endif %}
+  </akco-testimonials>
+{% endif %}
+
+{% javascript %}
+  let asset;
+  function loadTestimonials(container) {
+    const section = container.querySelector('akco-testimonials[data-script]');
+    if (!section || asset || customElements.get('akco-testimonials')) return;
+
+    asset = document.createElement('script');
+    asset.src = section.dataset.script;
+    asset.addEventListener('error', () => {
+      asset.remove();
+      asset = null;
+    }, { once: true });
+    document.head.append(asset);
+  }
+
+  loadTestimonials(document);
+  document.addEventListener('shopify:section:load', (event) => loadTestimonials(event.target));
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Customer Testimonials",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Scents worth" },
+    { "type": "text", "id": "heading_accent", "label": "Italic second line", "default": "talking about." },
+    { "type": "textarea", "id": "description", "label": "Description" },
+    { "type": "image_picker", "id": "background_image", "label": "Background image" }
+  ],
+  "max_blocks": 12,
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "Testimonial",
+      "settings": [
+        { "type": "textarea", "id": "quote", "label": "Customer quote" },
+        { "type": "range", "id": "rating", "label": "Star rating", "min": 0, "max": 5, "step": 1, "default": 0, "info": "Set to 0 to hide the rating." },
+        { "type": "text", "id": "author", "label": "Customer name" },
+        { "type": "text", "id": "detail", "label": "Product or customer detail" },
+        { "type": "image_picker", "id": "image", "label": "Customer or product image" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Customer Testimonials",
+      "blocks": [{ "type": "testimonial" }, { "type": "testimonial" }, { "type": "testimonial" }]
+    }
+  ]
+}
+{% endschema %}

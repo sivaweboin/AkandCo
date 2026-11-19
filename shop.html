@@ -147,7 +147,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   position: relative;
   margin-top: 16px;
 }
-.featured-track, .featured-collections {
+.featured-track {
   --featured-gap: clamp(24px, 3vw, 48px);
   --featured-card-width: min(340px, calc((100cqw - 2 * var(--featured-gap)) / 3));
 }
@@ -318,24 +318,36 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .featured-arrow:disabled { opacity: .5; cursor: default; }
 
 @media (max-width: 620px) {
-  .featured-track, .featured-collections { --featured-gap: 20px; --featured-card-width: 74cqw; }
+  .featured-track { --featured-gap: 20px; --featured-card-width: 74cqw; }
   .featured-arrow { width: 44px; height: 44px; }
 }
 
-.featured-collections { container-type: inline-size; }
-.featured-collections[data-pinned] {
-  min-height: calc(var(--collections-height) + var(--collections-travel));
+.featured-collections {
+  --featured-card-width: min(400px, 40cqw);
+  container-type: inline-size;
 }
-.collections-pin {
-  padding-block: clamp(20px, 4svh, 48px);
+@media (max-width: 760px) {
+  .featured-collections { --featured-card-width: min(400px, 82cqw); }
+}
+.featured-collections[data-pinned]::after {
+  content: "";
+  display: block;
+  height: var(--collections-spacer-height, 0px);
+}
+.collections-pin, .featured-collections[data-pinned] {
   background: #f6f3ee;
 }
-.featured-collections[data-pinned] .collections-pin { position: sticky; top: 0; overflow: clip; }
+.featured-collections[data-pinned] .collections-pin {
+  position: sticky;
+  top: 0;
+  overflow: clip;
+}
 .collections-layout {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
   align-items: center;
   gap: clamp(24px, 4vw, 68px);
+  padding-block: clamp(32px, 6svh, 64px) clamp(20px, 4svh, 48px);
 }
 .collections-intro { padding-inline-start: clamp(20px, 3.5vw, 64px); }
 .collections-intro h2 {
@@ -358,6 +370,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   display: flex;
   gap: 16px;
   overflow-x: auto;
+  scroll-behavior: auto;
+  overscroll-behavior-x: contain;
   padding-bottom: 8px;
   background: #f6f3ee;
   scrollbar-width: thin;
@@ -365,18 +379,25 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .featured-collections[data-pinned]:not([data-manual-swipe]) .collections-intro { filter: blur(var(--collections-blur, 0px)); }
 .featured-collections .collections-intro:focus-within { position: relative; z-index: 1; filter: none; }
 .featured-collections[data-pinned] .collections-rail {
+  margin-inline-start: var(--collections-manual-overlap, 0px);
   scrollbar-width: none;
+  translate: var(--collections-rail-shift, 0px) 0;
+  will-change: translate;
 }
-.featured-collections[data-pinned]:not([data-manual-swipe]) .collections-rail {
-  margin-inline-start: var(--collections-overlap, 0px);
+.featured-collections[data-pinned] { overflow-anchor: none; }
+.featured-collections[data-pinned][data-manual-swipe] .collections-rail {
+  translate: 0 0;
 }
 @media (min-width: 761px) {
-  .featured-collections[data-manual-swipe] .collections-rail {
+  .featured-collections:not([data-pinned])[data-manual-swipe] .collections-rail {
     margin-inline-start: var(--collections-manual-overlap, 0px);
   }
 }
 @media (min-width: 761px) and (prefers-reduced-motion: no-preference) {
-  .featured-collections[data-manual-swipe] .collections-rail {
+  .featured-collections[data-pinned][data-manual-swipe] .collections-rail {
+    transition: translate .24s ease-out;
+  }
+  .featured-collections:not([data-pinned])[data-manual-swipe] .collections-rail {
     transition: margin-inline-start .24s ease-out;
   }
 }
@@ -392,16 +413,64 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   background: #26353f;
   color: white;
 }
+.collections-product {
+  position: absolute;
+  inset: 0;
+}
 .collections-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .collections-details {
   position: relative;
   display: grid;
-  gap: 4px;
-  padding: clamp(12px, 1.6vw, 20px);
-  background: linear-gradient(transparent, rgb(9 12 17 / 88%));
+  gap: 8px;
+  padding: 28px clamp(12px, 1.6vw, 20px) clamp(12px, 1.6vw, 20px);
+  background: linear-gradient(transparent, rgb(9 12 17 / 94%) 80%);
+  pointer-events: none;
 }
 .collections-name { font: 400 clamp(1.125rem, 2.8vw, 2.25rem)/1.1 var(--serif); }
-.collections-rail:focus-visible, .collections-card:focus-visible {
+.collections-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+}
+.collections-price { font-weight: 600; }
+.collections-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 44px;
+  margin-inline-start: auto;
+  padding: 8px 14px;
+  border: 1px solid rgb(255 255 255 / 75%);
+  border-radius: 999px;
+  background: linear-gradient(155deg, white, #f6ebe0);
+  color: #1a1a1a;
+  font: 600 .75rem/1.2 Arial, sans-serif;
+  letter-spacing: .03em;
+  white-space: nowrap;
+  box-shadow: inset 0 1px 4px white, 0 3px 10px rgb(0 0 0 / 25%);
+  cursor: pointer;
+  pointer-events: auto;
+}
+.collections-add:hover { background: white; }
+.collections-wishlist {
+  position: absolute;
+  inset-block-start: 12px;
+  inset-inline-end: 12px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.collections-wishlist:hover { border-color: rgb(255 255 255 / 70%); }
+.collections-wishlist[aria-pressed="true"] { background: var(--shop-olive); color: white; }
+.collections-rail:focus-visible, .collections-product:focus-visible,
+.collections-add:focus-visible, .collections-wishlist:focus-visible {
   outline: 2px solid var(--shop-gold);
   outline-offset: -3px;
 }
@@ -577,8 +646,8 @@ body:has(.filter-dialog[open]) { overflow: hidden; }
 .favorite-button { position: absolute; top: 9px; right: 9px; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; color: var(--shop-olive); cursor: pointer; transition: background .2s, color .2s, transform .2s; }
 .favorite-button:hover { transform: scale(1.06); }
 .favorite-button[aria-pressed="true"] { background-color: var(--shop-olive); background-image: none; color: white; }
-.favorite-button svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 1px 2px rgb(3 18 6 / 80%)); }
-.favorite-button[aria-pressed="true"] svg { fill: currentColor; }
+.favorite-button svg, .collections-wishlist svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 1px 2px rgb(3 18 6 / 80%)); }
+.favorite-button[aria-pressed="true"] svg, .collections-wishlist[aria-pressed="true"] svg { fill: currentColor; }
 .product-info { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 5px 8px; padding: 12px 2px 0; }
 .product-name-link { min-width: 0; color: inherit; }
 .product-info h3 { margin: 0; font-size: 1.125rem; font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
@@ -891,7 +960,8 @@ body:has(.filter-dialog[open]) { overflow: hidden; }
 }
 
 .product-badge,
-.favorite-button {
+.favorite-button,
+.collections-wishlist {
   border: 1px solid rgb(255 255 255 / 30%);
   background: linear-gradient(145deg, rgb(255 255 255 / 12%), rgb(6 12 17 / 24%));
   background-clip: padding-box;
@@ -900,8 +970,8 @@ body:has(.filter-dialog[open]) { overflow: hidden; }
   backdrop-filter: blur(5px);
 }
 @supports (mask-composite: exclude) {
-  .product-badge, .favorite-button { border-color: transparent; }
-  .product-badge::before, .favorite-button::before {
+  .product-badge, .favorite-button, .collections-wishlist { border-color: transparent; }
+  .product-badge::before, .favorite-button::before, .collections-wishlist::before {
     content: "";
     position: absolute;
     inset: -1px;
@@ -1205,6 +1275,8 @@ body:has(.cart-drawer[open]) {
 }
 
     </style>
+    <link rel="stylesheet" href="assets/scrolling-testimonials.css">
+    <script src="assets/scrolling-testimonials.js" defer></script>
   </head>
   <body>
     <header class="shop-header">
@@ -1528,6 +1600,78 @@ body:has(.cart-drawer[open]) {
         role="status"
         aria-live="polite"
       ></p>
+
+      <akco-testimonials class="akco-testimonials" id="customer-reviews" role="region" aria-labelledby="customer-reviews-title">
+        <div class="akco-testimonials-header">
+          <h2 id="customer-reviews-title">Scents worth <em>talking about.</em></h2>
+        </div>
+        <div class="akco-testimonials-viewport" id="customer-reviews-track" role="group" aria-label="Scrollable reviews" tabindex="0">
+          <div class="akco-testimonials-track">
+            <div class="akco-testimonials-group">
+              <div class="akco-testimonials-slot">
+                <figure class="akco-testimonials-card">
+                  <figcaption class="akco-testimonials-attribution">
+                    <img class="akco-testimonials-image" src="images/featured-glass-amber.webp" width="50" height="50" loading="lazy" alt="">
+                    <div><strong>Priya S.</strong><span>Royal Amber · Sample review</span></div>
+                  </figcaption>
+                  <span class="akco-testimonials-quote-mark" aria-hidden="true">“</span>
+                  <blockquote>Warm from the first spray. The amber softens as it settles and feels even better close to the skin.</blockquote>
+                </figure>
+              </div>
+              <div class="akco-testimonials-slot">
+                <figure class="akco-testimonials-card">
+                  <figcaption class="akco-testimonials-attribution">
+                    <img class="akco-testimonials-image" src="images/featured-glass-ocean.webp" width="50" height="50" loading="lazy" alt="">
+                    <div><strong>Arjun M.</strong><span>Ocean Breeze · Sample review</span></div>
+                  </figcaption>
+                  <span class="akco-testimonials-quote-mark" aria-hidden="true">“</span>
+                  <blockquote>Fresh and airy, like opening the windows first thing in the morning. It’s an easy one to reach for.</blockquote>
+                </figure>
+              </div>
+              <div class="akco-testimonials-slot">
+                <figure class="akco-testimonials-card">
+                  <figcaption class="akco-testimonials-attribution">
+                    <img class="akco-testimonials-image" src="images/p1.webp" width="50" height="50" loading="lazy" alt="">
+                    <div><strong>Meera R.</strong><span>Sandalwood · Sample review</span></div>
+                  </figcaption>
+                  <span class="akco-testimonials-quote-mark" aria-hidden="true">“</span>
+                  <blockquote>A little on each wrist is enough. The sandalwood has a quiet warmth that stays close.</blockquote>
+                </figure>
+              </div>
+              <div class="akco-testimonials-slot">
+                <figure class="akco-testimonials-card">
+                  <figcaption class="akco-testimonials-attribution">
+                    <img class="akco-testimonials-image" src="images/p3.webp" width="50" height="50" loading="lazy" alt="">
+                    <div><strong>Karthik V.</strong><span>Black Oud · Sample review</span></div>
+                  </figcaption>
+                  <span class="akco-testimonials-quote-mark" aria-hidden="true">“</span>
+                  <blockquote>Deep and woody with a smoky finish. It feels right for a dinner out.</blockquote>
+                </figure>
+              </div>
+              <div class="akco-testimonials-slot">
+                <figure class="akco-testimonials-card">
+                  <figcaption class="akco-testimonials-attribution">
+                    <img class="akco-testimonials-image" src="images/featured-glass-lavender.webp" width="50" height="50" loading="lazy" alt="">
+                    <div><strong>Ananya D.</strong><span>Floral Dream · Sample review</span></div>
+                  </figcaption>
+                  <span class="akco-testimonials-quote-mark" aria-hidden="true">“</span>
+                  <blockquote>Soft and floral, with the freshness of a bunch of flowers just brought home.</blockquote>
+                </figure>
+              </div>
+              <div class="akco-testimonials-slot">
+                <figure class="akco-testimonials-card">
+                  <figcaption class="akco-testimonials-attribution">
+                    <img class="akco-testimonials-image" src="images/p2.webp" width="50" height="50" loading="lazy" alt="">
+                    <div><strong>Nisha K.</strong><span>Vanilla Noir · Sample review</span></div>
+                  </figcaption>
+                  <span class="akco-testimonials-quote-mark" aria-hidden="true">“</span>
+                  <blockquote>The vanilla feels mellow and warm. I’d wear this with my favourite sweater on a rainy evening.</blockquote>
+                </figure>
+              </div>
+            </div>
+          </div>
+        </div>
+      </akco-testimonials>
     </main>
     <dialog class="filter-dialog" id="mobile-filter-dialog" aria-labelledby="filter-title">
       <div class="filter-dialog-actions">
@@ -1937,7 +2081,14 @@ const mobileFilters = window.matchMedia("(max-width: 620px)");
 let selectedCategory = new URLSearchParams(location.search).get("category") ?? "all";
 let sortOrder = "featured";
 let desktopFiltersOpen = false;
+const wishlistKey = "akco-wishlist";
 const favoriteIds = new Set();
+try {
+  const saved = JSON.parse(localStorage.getItem(wishlistKey));
+  if (Array.isArray(saved)) saved.forEach((id) => favoriteIds.add(id));
+} catch {
+  // The wishlist is still usable for this visit.
+}
 let statusTimeout;
 
 
@@ -1998,22 +2149,7 @@ function productCard(product, imageSource = productImageUrl(product.image)) {
     visual.append(badge);
   }
 
-  const favorite = document.createElement("button");
-  favorite.className = "favorite-button";
-  favorite.type = "button";
-  favorite.dataset.favorite = product.id;
-  updateFavoriteButton(favorite, product);
-  favorite.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.8c0 5.2-8.8 10-8.8 10s-8.8-4.8-8.8-10A4.8 4.8 0 0 1 12 6.4a4.8 4.8 0 0 1 8.8 2.4Z"></path></svg>';
-  favorite.addEventListener("click", () => {
-    const isFavorite = favoriteIds.has(product.id);
-    if (isFavorite) favoriteIds.delete(product.id);
-    else favoriteIds.add(product.id);
-    for (const button of document.querySelectorAll("[data-favorite]")) {
-      if (button.dataset.favorite === product.id) updateFavoriteButton(button, product);
-    }
-    showStatus(isFavorite ? `${product.name} removed from favorites.` : `${product.name} added to favorites.`);
-  });
-  visual.append(favorite);
+  visual.append(createFavoriteButton(product));
 
   const info = document.createElement("div");
   info.className = "product-info";
@@ -2034,10 +2170,16 @@ function productCard(product, imageSource = productImageUrl(product.image)) {
 
   const actions = document.createElement("div");
   actions.className = "product-card-actions";
+  actions.append(createAddToCartButton(product));
+  card.append(visual, info, actions);
+  return card;
+}
+
+function createAddToCartButton(product, className = "add-to-bag", label = "ADD TO CART") {
   const addButton = document.createElement("button");
-  addButton.className = "add-to-bag";
+  addButton.className = className;
   addButton.type = "button";
-  addButton.textContent = "ADD TO CART";
+  addButton.textContent = label;
   addButton.addEventListener("click", () => {
     window.AKCO.cart.add([{
       id: product.id,
@@ -2046,15 +2188,37 @@ function productCard(product, imageSource = productImageUrl(product.image)) {
       quantity: 1,
     }]);
   });
-  actions.append(addButton);
-  card.append(visual, info, actions);
-  return card;
+  return addButton;
+}
+
+function createFavoriteButton(product, className = "favorite-button") {
+  const favorite = document.createElement("button");
+  favorite.className = className;
+  favorite.type = "button";
+  favorite.dataset.favorite = product.id;
+  updateFavoriteButton(favorite, product);
+  favorite.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.8c0 5.2-8.8 10-8.8 10s-8.8-4.8-8.8-10A4.8 4.8 0 0 1 12 6.4a4.8 4.8 0 0 1 8.8 2.4Z"></path></svg>';
+  favorite.addEventListener("click", () => {
+    const isFavorite = favoriteIds.has(product.id);
+    if (isFavorite) favoriteIds.delete(product.id);
+    else favoriteIds.add(product.id);
+    try {
+      localStorage.setItem(wishlistKey, JSON.stringify([...favoriteIds]));
+    } catch {
+      // Preserve the current selection when storage is unavailable.
+    }
+    for (const button of document.querySelectorAll("[data-favorite]")) {
+      if (button.dataset.favorite === product.id) updateFavoriteButton(button, product);
+    }
+    showStatus(isFavorite ? `${product.name} removed from your wishlist.` : `${product.name} added to your wishlist.`);
+  });
+  return favorite;
 }
 
 function updateFavoriteButton(button, product) {
   const saved = favoriteIds.has(product.id);
   button.setAttribute("aria-pressed", String(saved));
-  button.setAttribute("aria-label", saved ? `Remove ${product.name} from favorites` : `Add ${product.name} to favorites`);
+  button.setAttribute("aria-label", saved ? `Remove ${product.name} from your wishlist` : `Add ${product.name} to your wishlist`);
 }
 
 function renderFeaturedProducts() {
@@ -2146,31 +2310,42 @@ function renderFeaturedProducts() {
 
 function renderFeaturedCollections() {
   const section = document.querySelector(".featured-collections");
-  const pin = section.querySelector(".collections-pin");
+  const layout = section.querySelector(".collections-layout");
   const rail = section.querySelector(".collections-rail");
   const ids = ["amber-coffee", "vampire-blood", "royal-amber", "musk-bloom", "sandalwood", "black-oud", "amber-essence"];
   const lineup = ids.map((id) => products.find((product) => product.id === id)).filter(Boolean);
   if (!lineup.length) return;
 
   for (const product of lineup) {
-    const card = document.createElement("a");
+    const card = document.createElement("article");
     card.className = "collections-card";
-    card.href = `product.html?id=${encodeURIComponent(product.id)}`;
+    const link = document.createElement("a");
+    link.className = "collections-product";
+    link.href = `product.html?id=${encodeURIComponent(product.id)}`;
+    link.setAttribute("aria-label", `View ${product.name} details`);
 
     const image = document.createElement("img");
     image.src = productImageUrl(product.image);
     image.alt = "";
     image.loading = "lazy";
 
-    const details = document.createElement("span");
+    const details = document.createElement("div");
     details.className = "collections-details";
     const name = document.createElement("span");
     name.className = "collections-name";
     name.textContent = product.name;
     const price = document.createElement("span");
+    price.className = "collections-price";
     price.textContent = formatter.format(product.price);
-    details.append(name, price);
-    card.append(image, details);
+    link.append(image);
+    const actions = document.createElement("div");
+    actions.className = "collections-actions";
+    const addButton = createAddToCartButton(product, "collections-add", "Add to cart");
+    addButton.setAttribute("aria-label", `Add ${product.name} to cart`);
+    addButton.insertAdjacentHTML("afterbegin", '<span class="featured-bag-icon" aria-hidden="true"></span>');
+    actions.append(price, addButton);
+    details.append(name, actions);
+    card.append(link, details, createFavoriteButton(product, "collections-wishlist"));
     rail.append(card);
   }
   section.hidden = false;
@@ -2178,16 +2353,23 @@ function renderFeaturedCollections() {
   const motion = matchMedia("(prefers-reduced-motion: no-preference)");
   let sweep = 0;
   let travel = 0;
+  let approachDistance = 0;
+  let pinDistance = 0;
   let frame = 0;
   let touchStart = null;
   let manualScrollY = 0;
   let scrollAnchor = null;
+  let viewportWidth = window.innerWidth;
 
   function update() {
     frame = 0;
-    if (!section.hasAttribute("data-pinned") || rail.contains(document.activeElement)) return;
+    if (!section.hasAttribute("data-pinned")) return;
 
-    const distance = Math.min(travel, Math.max(0, -section.getBoundingClientRect().top));
+    if (rail.contains(document.activeElement) && document.activeElement.matches(":focus-visible")) return;
+
+    const top = section.getBoundingClientRect().top;
+    const fraction = (approachDistance - top) / (approachDistance + pinDistance);
+    const distance = Math.min(1, Math.max(0, fraction)) * travel;
     if (section.hasAttribute("data-manual-swipe")) {
       if (window.scrollY === manualScrollY) return;
       scrollAnchor = { distance, progress: Math.min(travel, sweep + rail.scrollLeft) };
@@ -2208,9 +2390,10 @@ function renderFeaturedCollections() {
     }
 
     const overlap = Math.min(sweep, progress);
-    rail.style.setProperty("--collections-overlap", `${-overlap}px`);
+    rail.style.setProperty("--collections-rail-shift", `${sweep - overlap}px`);
     section.style.setProperty("--collections-blur", `${sweep ? overlap / sweep * 5 : 0}px`);
-    rail.scrollLeft = progress - overlap;
+    const scrollLeft = progress - overlap;
+    if (Math.abs(rail.scrollLeft - scrollLeft) >= 0.5) rail.scrollLeft = scrollLeft;
   }
 
   function schedule() {
@@ -2218,31 +2401,45 @@ function renderFeaturedCollections() {
   }
 
   function measure() {
-    const manualSwipe = section.hasAttribute("data-manual-swipe");
-    section.removeAttribute("data-manual-swipe");
-    section.removeAttribute("data-pinned");
-    sweep = Math.max(0, rail.getBoundingClientRect().left - section.getBoundingClientRect().left);
+    const railStyle = getComputedStyle(rail);
+    const margin = parseFloat(railStyle.marginInlineStart) || 0;
+    const shift = parseFloat(railStyle.translate) || 0;
+    sweep = Math.max(0, rail.getBoundingClientRect().left - section.getBoundingClientRect().left - margin - shift);
     rail.style.setProperty("--collections-manual-overlap", `${-sweep}px`);
-    const canPin = motion.matches && rail.scrollWidth > rail.clientWidth;
-    section.toggleAttribute("data-manual-swipe", manualSwipe);
-    if (!canPin) return;
 
-    rail.style.setProperty("--collections-overlap", `${-sweep}px`);
-    section.setAttribute("data-pinned", "");
-    const height = pin.offsetHeight;
+    // Keep the runway in place while measuring so the scroll position cannot jump.
+    const canPin = motion.matches && rail.scrollWidth > section.clientWidth;
+    if (!canPin || layout.offsetHeight >= innerHeight) {
+      section.removeAttribute("data-pinned");
+      return;
+    }
+
+    if (!section.hasAttribute("data-pinned")) {
+      rail.style.setProperty("--collections-rail-shift", `${sweep}px`);
+      section.setAttribute("data-pinned", "");
+    }
+
     const scrollable = rail.scrollWidth - rail.clientWidth;
-    if (height >= innerHeight || scrollable <= 0) {
+    if (scrollable <= 0) {
       section.removeAttribute("data-pinned");
       return;
     }
 
     travel = sweep + scrollable;
+    const roomBelowPanel = Math.max(0, window.innerHeight - layout.getBoundingClientRect().height);
+    pinDistance = Math.min(travel, Math.max(320, roomBelowPanel, window.innerHeight * 0.45));
+    // Start moving the cards as the panel comes into view to keep the pinned stretch short.
+    const sectionBounds = section.getBoundingClientRect();
+    const sectionStart = Math.max(0, sectionBounds.top + window.scrollY);
+    approachDistance = Math.min(travel - pinDistance, roomBelowPanel, sectionStart);
+    // Leave enough page scroll to reach the last card even at the end of a page.
+    const contentBelow = Math.max(0, document.body.getBoundingClientRect().bottom - sectionBounds.bottom);
+    const endSpace = Math.ceil(Math.max(0, roomBelowPanel - contentBelow));
     if (scrollAnchor) {
       scrollAnchor.distance = Math.min(scrollAnchor.distance, travel);
       scrollAnchor.progress = Math.min(scrollAnchor.progress, travel);
     }
-    section.style.setProperty("--collections-height", `${height}px`);
-    section.style.setProperty("--collections-travel", `${travel}px`);
+    section.style.setProperty("--collections-spacer-height", `${pinDistance + endSpace}px`);
     update();
   }
 
@@ -2268,7 +2465,12 @@ function renderFeaturedCollections() {
     if (event.key === "ArrowLeft" || event.key === "ArrowRight") useManualSwipe();
   });
   window.addEventListener("scroll", schedule, { passive: true });
-  window.addEventListener("resize", measure);
+  window.addEventListener("resize", () => {
+    const width = window.innerWidth;
+    if (width === viewportWidth && matchMedia("(hover: none) and (pointer: coarse)").matches) return;
+    viewportWidth = width;
+    measure();
+  });
   rail.addEventListener("focusout", schedule);
   motion.addEventListener("change", measure);
   measure();

@@ -4,37 +4,41 @@
   --akco-collections-muted: #65675d;
   --akco-collections-gold: #8b6220;
   --akco-collections-serif: Georgia, serif;
-  --featured-gap: clamp(24px, 3vw, 48px);
-  --featured-card-width: min(340px, calc((100cqw - 2 * var(--featured-gap)) / 3));
+  --featured-card-width: min(400px, 40cqw);
   color: var(--akco-collections-ink);
   font: 1rem/1.55 Arial, sans-serif;
 }
 .akco-featured-collections, .akco-featured-collections * { box-sizing: border-box; }
 .akco-featured-collections a { text-decoration: none; }
-.akco-collections-card:visited { color: white; }
 .akco-collections-shop:focus-visible {
   outline: 2px solid var(--akco-collections-gold);
   outline-offset: 3px;
 }
 .akco-collections-empty { align-self: center; padding: 20px; }
 @media (max-width: 760px) {
-  .akco-featured-collections { --featured-card-width: 74cqw; }
+  .akco-featured-collections { --featured-card-width: min(400px, 82cqw); }
 }
 
 .akco-featured-collections { container-type: inline-size; }
-.akco-featured-collections[data-pinned] {
-  min-height: calc(var(--collections-height) + var(--collections-travel));
+.akco-featured-collections[data-pinned]::after {
+  content: "";
+  display: block;
+  height: var(--collections-spacer-height, 0px);
 }
-.akco-collections-pin {
-  padding-block: clamp(20px, 4svh, 48px);
+.akco-collections-pin, .akco-featured-collections[data-pinned] {
   background: #f6f3ee;
 }
-.akco-featured-collections[data-pinned] .akco-collections-pin { position: sticky; top: 0; overflow: clip; }
+.akco-featured-collections[data-pinned] .akco-collections-pin {
+  position: sticky;
+  top: 0;
+  overflow: clip;
+}
 .akco-collections-layout {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
   align-items: center;
   gap: clamp(24px, 4vw, 68px);
+  padding-block: clamp(32px, 6svh, 64px) clamp(20px, 4svh, 48px);
 }
 .akco-collections-intro { padding-inline-start: clamp(20px, 3.5vw, 64px); }
 .akco-collections-intro h2 {
@@ -60,6 +64,8 @@
   display: flex;
   gap: 16px;
   overflow-x: auto;
+  scroll-behavior: auto;
+  overscroll-behavior-x: contain;
   padding-bottom: 8px;
   background: #f6f3ee;
   scrollbar-width: thin;
@@ -67,18 +73,25 @@
 .akco-featured-collections[data-pinned]:not([data-manual-swipe]) .akco-collections-intro { filter: blur(var(--collections-blur, 0px)); }
 .akco-featured-collections .akco-collections-intro:focus-within { position: relative; z-index: 1; filter: none; }
 .akco-featured-collections[data-pinned] .akco-collections-rail {
+  margin-inline-start: var(--collections-manual-overlap, 0px);
   scrollbar-width: none;
+  translate: var(--collections-rail-shift, 0px) 0;
+  will-change: translate;
 }
-.akco-featured-collections[data-pinned]:not([data-manual-swipe]) .akco-collections-rail {
-  margin-inline-start: var(--collections-overlap, 0px);
+.akco-featured-collections[data-pinned] { overflow-anchor: none; }
+.akco-featured-collections[data-pinned][data-manual-swipe] .akco-collections-rail {
+  translate: 0 0;
 }
 @media (min-width: 761px) {
-  .akco-featured-collections[data-manual-swipe] .akco-collections-rail {
+  .akco-featured-collections:not([data-pinned])[data-manual-swipe] .akco-collections-rail {
     margin-inline-start: var(--collections-manual-overlap, 0px);
   }
 }
 @media (min-width: 761px) and (prefers-reduced-motion: no-preference) {
-  .akco-featured-collections[data-manual-swipe] .akco-collections-rail {
+  .akco-featured-collections[data-pinned][data-manual-swipe] .akco-collections-rail {
+    transition: translate .24s ease-out;
+  }
+  .akco-featured-collections:not([data-pinned])[data-manual-swipe] .akco-collections-rail {
     transition: margin-inline-start .24s ease-out;
   }
 }
@@ -94,16 +107,100 @@
   background: #26353f;
   color: white;
 }
+.akco-collections-product {
+  position: absolute;
+  inset: 0;
+}
 .akco-collections-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .akco-collections-details {
   position: relative;
   display: grid;
-  gap: 4px;
-  padding: clamp(12px, 1.6vw, 20px);
-  background: linear-gradient(transparent, rgb(9 12 17 / 88%));
+  gap: 8px;
+  padding: 28px clamp(12px, 1.6vw, 20px) clamp(12px, 1.6vw, 20px);
+  background: linear-gradient(transparent, rgb(9 12 17 / 94%) 80%);
+  pointer-events: none;
 }
 .akco-collections-name { font: 400 clamp(1.125rem, 2.8vw, 2.25rem)/1.1 var(--akco-collections-serif); }
-.akco-collections-rail:focus-visible, .akco-collections-card:focus-visible {
+.akco-collections-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+}
+.akco-collections-price { font-weight: 600; }
+.akco-collections-cart-form { margin: 0; margin-inline-start: auto; }
+.akco-collections-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 44px;
+  margin-inline-start: auto;
+  padding: 8px 14px;
+  border: 1px solid rgb(255 255 255 / 75%);
+  border-radius: 999px;
+  background: linear-gradient(155deg, white, #f6ebe0);
+  color: #1a1a1a;
+  font: 600 .75rem/1.2 Arial, sans-serif;
+  letter-spacing: .03em;
+  white-space: nowrap;
+  box-shadow: inset 0 1px 4px white, 0 3px 10px rgb(0 0 0 / 25%);
+  cursor: pointer;
+  pointer-events: auto;
+}
+.akco-collections-add:disabled { opacity: .7; cursor: default; }
+.akco-collections-add:hover:enabled, a.akco-collections-add:hover { background: white; }
+.akco-collections-bag-icon {
+  position: relative;
+  flex: 0 0 14px;
+  height: 13px;
+  margin-top: 3px;
+  border: 1.5px solid currentColor;
+  border-radius: 3px;
+}
+.akco-collections-bag-icon::before {
+  content: "";
+  position: absolute;
+  inset: -5px 3px auto;
+  height: 6px;
+  border: 1.5px solid currentColor;
+  border-bottom: 0;
+  border-radius: 5px 5px 0 0;
+}
+.akco-collections-wishlist {
+  position: absolute;
+  inset-block-start: 12px;
+  inset-inline-end: 12px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 1px solid rgb(255 255 255 / 30%);
+  background: linear-gradient(145deg, rgb(255 255 255 / 12%), rgb(6 12 17 / 24%));
+  background-clip: padding-box;
+  color: #f5f4f0;
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+}
+.akco-collections-wishlist:hover { border-color: rgb(255 255 255 / 70%); }
+.akco-collections-wishlist[hidden] { display: none; }
+.akco-collections-wishlist[aria-pressed="true"] { background: var(--akco-collections-ink); color: white; }
+.akco-collections-wishlist svg {
+  width: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 1px 2px rgb(3 18 6 / 80%));
+}
+.akco-collections-wishlist[aria-pressed="true"] svg { fill: currentColor; }
+.akco-collections-rail:focus-visible, .akco-collections-product:focus-visible,
+.akco-collections-add:focus-visible, .akco-collections-wishlist:focus-visible {
   outline: 2px solid var(--akco-collections-gold);
   outline-offset: -3px;
 }
@@ -138,15 +235,34 @@
         {% if featured_products != blank %}
           <div class="akco-collections-rail" role="region" aria-labelledby="AkcoCollectionsTitle-{{ section.id }}" tabindex="0">
             {% for featured_product in featured_products limit: 12 %}
-              <a class="akco-collections-card" href="{{ featured_product.url | escape }}">
-                {% if featured_product.featured_image != blank %}
-                  {{ featured_product.featured_image | image_url: width: 1020 | image_tag: widths: '360, 540, 720, 1020', sizes: '(max-width: 760px) 74vw, 340px', loading: 'lazy', alt: '' }}
-                {% endif %}
-                <span class="akco-collections-details">
+              {% assign variant = featured_product.selected_or_first_available_variant %}
+              <article class="akco-collections-card">
+                <a class="akco-collections-product" href="{{ featured_product.url | escape }}" aria-label="View {{ featured_product.title | escape }} details">
+                  {% if featured_product.featured_image != blank %}
+                    {{ featured_product.featured_image | image_url: width: 1020 | image_tag: widths: '360, 540, 720, 1020', sizes: '(max-width: 488px) 82vw, (max-width: 760px) 400px, (max-width: 1000px) 40vw, 400px', loading: 'lazy', alt: '' }}
+                  {% endif %}
+                </a>
+                <div class="akco-collections-details">
                   <span class="akco-collections-name">{{ featured_product.title | escape }}</span>
-                  <span>{{ featured_product.price | money }}</span>
-                </span>
-              </a>
+                  <div class="akco-collections-actions">
+                    <span class="akco-collections-price">{{ variant.price | default: featured_product.price | money }}</span>
+                    {% if featured_product.available == false %}
+                      <button class="akco-collections-add" type="button" disabled>Sold out</button>
+                    {% elsif featured_product.has_only_default_variant == false or featured_product.requires_selling_plan %}
+                      <a class="akco-collections-add" href="{{ featured_product.url | escape }}" aria-label="Choose options for {{ featured_product.title | escape }}"><span class="akco-collections-bag-icon" aria-hidden="true"></span>Choose options</a>
+                    {% else %}
+                      <form class="akco-collections-cart-form" method="post" action="{{ routes.cart_add_url }}">
+                        <input type="hidden" name="id" value="{{ variant.id }}">
+                        <input type="hidden" name="quantity" value="1">
+                        <button class="akco-collections-add" type="submit" aria-label="Add {{ featured_product.title | escape }} to cart"><span class="akco-collections-bag-icon" aria-hidden="true"></span>Add to cart</button>
+                      </form>
+                    {% endif %}
+                  </div>
+                </div>
+                <button class="akco-collections-wishlist" type="button" data-collections-wishlist="{{ featured_product.id }}" aria-label="Wishlist for {{ featured_product.title | escape }}" aria-pressed="false" hidden>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.8c0 5.2-8.8 10-8.8 10s-8.8-4.8-8.8-10A4.8 4.8 0 0 1 12 6.4a4.8 4.8 0 0 1 8.8 2.4Z"/></svg>
+                </button>
+              </article>
             {% endfor %}
           </div>
         {% else %}
@@ -161,28 +277,64 @@
 (() => {
   const selector = ".akco-featured-collections";
   const instances = new WeakMap();
+  const wishlistKey = "akco-wishlist";
+  const wishlist = new Set();
+  try {
+    const saved = JSON.parse(localStorage.getItem(wishlistKey));
+    if (Array.isArray(saved)) saved.forEach((id) => wishlist.add(id));
+  } catch {
+    // The wishlist is still usable for this visit.
+  }
 
   function initialize(section) {
     const rail = section.querySelector(".akco-collections-rail");
     if (!rail || instances.has(section)) return;
-    const pin = section.querySelector(".akco-collections-pin");
+    const layout = section.querySelector(".akco-collections-layout");
     const controller = new AbortController();
     const { signal } = controller;
     instances.set(section, controller);
 
+    for (const button of rail.querySelectorAll("[data-collections-wishlist]")) {
+      button.setAttribute("aria-pressed", String(wishlist.has(button.dataset.collectionsWishlist)));
+      button.hidden = false;
+    }
+    rail.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-collections-wishlist]");
+      if (!button) return;
+      const id = button.dataset.collectionsWishlist;
+      if (wishlist.has(id)) wishlist.delete(id);
+      else wishlist.add(id);
+      const pressed = String(wishlist.has(id));
+      for (const match of document.querySelectorAll("[data-collections-wishlist]")) {
+        if (match.dataset.collectionsWishlist === id) match.setAttribute("aria-pressed", pressed);
+      }
+      try {
+        localStorage.setItem(wishlistKey, JSON.stringify([...wishlist]));
+      } catch {
+        // Preserve the current selection when storage is unavailable.
+      }
+    }, { signal });
+
     const motion = matchMedia("(prefers-reduced-motion: no-preference)");
     let sweep = 0;
     let travel = 0;
+    let approachDistance = 0;
+    let pinDistance = 0;
     let frame = 0;
     let touchStart = null;
     let manualScrollY = 0;
     let scrollAnchor = null;
+    let viewportWidth = window.innerWidth;
 
     function update() {
       frame = 0;
-      if (!section.hasAttribute("data-pinned") || rail.contains(document.activeElement)) return;
+      if (!section.hasAttribute("data-pinned")) return;
 
-      const distance = Math.min(travel, Math.max(0, -section.getBoundingClientRect().top));
+      if (rail.contains(document.activeElement) && document.activeElement.matches(":focus-visible")) return;
+
+      const top = section.getBoundingClientRect().top;
+      const fraction = (approachDistance - top) / (approachDistance + pinDistance);
+      const distance = Math.min(1, Math.max(0, fraction)) * travel;
       if (section.hasAttribute("data-manual-swipe")) {
         if (window.scrollY === manualScrollY) return;
         scrollAnchor = { distance, progress: Math.min(travel, sweep + rail.scrollLeft) };
@@ -203,9 +355,10 @@
       }
 
       const overlap = Math.min(sweep, progress);
-      rail.style.setProperty("--collections-overlap", `${-overlap}px`);
+      rail.style.setProperty("--collections-rail-shift", `${sweep - overlap}px`);
       section.style.setProperty("--collections-blur", `${sweep ? overlap / sweep * 5 : 0}px`);
-      rail.scrollLeft = progress - overlap;
+      const scrollLeft = progress - overlap;
+      if (Math.abs(rail.scrollLeft - scrollLeft) >= 0.5) rail.scrollLeft = scrollLeft;
     }
 
     function schedule() {
@@ -213,31 +366,45 @@
     }
 
     function measure() {
-      const manualSwipe = section.hasAttribute("data-manual-swipe");
-      section.removeAttribute("data-manual-swipe");
-      section.removeAttribute("data-pinned");
-      sweep = Math.max(0, rail.getBoundingClientRect().left - section.getBoundingClientRect().left);
+      const railStyle = getComputedStyle(rail);
+      const margin = parseFloat(railStyle.marginInlineStart) || 0;
+      const shift = parseFloat(railStyle.translate) || 0;
+      sweep = Math.max(0, rail.getBoundingClientRect().left - section.getBoundingClientRect().left - margin - shift);
       rail.style.setProperty("--collections-manual-overlap", `${-sweep}px`);
-      const canPin = motion.matches && rail.scrollWidth > rail.clientWidth;
-      section.toggleAttribute("data-manual-swipe", manualSwipe);
-      if (!canPin) return;
 
-      rail.style.setProperty("--collections-overlap", `${-sweep}px`);
-      section.setAttribute("data-pinned", "");
-      const height = pin.offsetHeight;
+      // Keep the runway in place while measuring so the scroll position cannot jump.
+      const canPin = motion.matches && rail.scrollWidth > section.clientWidth;
+      if (!canPin || layout.offsetHeight >= innerHeight) {
+        section.removeAttribute("data-pinned");
+        return;
+      }
+
+      if (!section.hasAttribute("data-pinned")) {
+        rail.style.setProperty("--collections-rail-shift", `${sweep}px`);
+        section.setAttribute("data-pinned", "");
+      }
+
       const scrollable = rail.scrollWidth - rail.clientWidth;
-      if (height >= innerHeight || scrollable <= 0) {
+      if (scrollable <= 0) {
         section.removeAttribute("data-pinned");
         return;
       }
 
       travel = sweep + scrollable;
+      const roomBelowPanel = Math.max(0, window.innerHeight - layout.getBoundingClientRect().height);
+      pinDistance = Math.min(travel, Math.max(320, roomBelowPanel, window.innerHeight * 0.45));
+      // Start moving the cards as the panel comes into view to keep the pinned stretch short.
+      const sectionBounds = section.getBoundingClientRect();
+      const sectionStart = Math.max(0, sectionBounds.top + window.scrollY);
+      approachDistance = Math.min(travel - pinDistance, roomBelowPanel, sectionStart);
+      // Leave enough page scroll to reach the last card even at the end of a page.
+      const contentBelow = Math.max(0, document.body.getBoundingClientRect().bottom - sectionBounds.bottom);
+      const endSpace = Math.ceil(Math.max(0, roomBelowPanel - contentBelow));
       if (scrollAnchor) {
         scrollAnchor.distance = Math.min(scrollAnchor.distance, travel);
         scrollAnchor.progress = Math.min(scrollAnchor.progress, travel);
       }
-      section.style.setProperty("--collections-height", `${height}px`);
-      section.style.setProperty("--collections-travel", `${travel}px`);
+      section.style.setProperty("--collections-spacer-height", `${pinDistance + endSpace}px`);
       update();
     }
 
@@ -263,7 +430,12 @@
       if (event.key === "ArrowLeft" || event.key === "ArrowRight") useManualSwipe();
     }, { signal });
     window.addEventListener("scroll", schedule, { passive: true, signal });
-    window.addEventListener("resize", measure, { signal });
+    window.addEventListener("resize", () => {
+      const width = window.innerWidth;
+      if (width === viewportWidth && matchMedia("(hover: none) and (pointer: coarse)").matches) return;
+      viewportWidth = width;
+      measure();
+    }, { signal });
     rail.addEventListener("focusout", schedule, { signal });
     motion.addEventListener("change", measure, { signal });
     measure();
