@@ -46,6 +46,62 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 
 .shop-content { width: min(1200px, calc(100% - 64px)); margin: 0 auto; padding: 34px 0 72px; }
+
+.shop-banner {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  align-items: center;
+  min-height: clamp(280px, 34vw, 420px);
+  margin-bottom: 28px;
+  padding: clamp(24px, 5vw, 68px);
+  overflow: hidden;
+  border-radius: 12px;
+  background: #1e140e;
+  color: #fff;
+}
+.shop-banner-image {
+  position: absolute;
+  z-index: -2;
+  inset: 0 0 0 auto;
+  width: 65%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 46%;
+}
+.shop-banner::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(90deg, #1e140e 26%, rgb(30 20 14 / 85%) 43%, transparent 78%);
+}
+.shop-banner h3 {
+  margin: 0;
+  font: 400 clamp(2.75rem, 6vw, 5rem)/1.05 var(--serif);
+}
+.shop-banner p { margin: 10px 0 22px; color: #f2e3d5; }
+.shop-banner-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1px solid #fff;
+  border-radius: 999px;
+  background: #fff;
+  color: #1e140e;
+  font-size: .875rem;
+  font-weight: 600;
+}
+.shop-banner-link:hover { background: #f2e3d5; border-color: #f2e3d5; }
+.shop-banner-link:focus-visible { outline-color: #fff; }
+@media (max-width: 600px) {
+  .shop-banner { align-items: end; min-height: 340px; }
+  .shop-banner-image { width: 100%; }
+  .shop-banner::before { background: linear-gradient(0deg, #1e140e 5%, rgb(30 20 14 / 88%) 34%, transparent 85%); }
+  .shop-banner p { margin-bottom: 16px; }
+}
+
 @property --featured-glow {
   syntax: "<color>";
   inherits: true;
@@ -306,11 +362,23 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   background: #f6f3ee;
   scrollbar-width: thin;
 }
-.featured-collections[data-pinned] .collections-intro { filter: blur(var(--collections-blur, 0px)); }
-.featured-collections[data-pinned] .collections-intro:focus-within { position: relative; z-index: 1; filter: none; }
+.featured-collections[data-pinned]:not([data-manual-swipe]) .collections-intro { filter: blur(var(--collections-blur, 0px)); }
+.featured-collections .collections-intro:focus-within { position: relative; z-index: 1; filter: none; }
 .featured-collections[data-pinned] .collections-rail {
-  margin-inline-start: var(--collections-overlap, 0px);
   scrollbar-width: none;
+}
+.featured-collections[data-pinned]:not([data-manual-swipe]) .collections-rail {
+  margin-inline-start: var(--collections-overlap, 0px);
+}
+@media (min-width: 761px) {
+  .featured-collections[data-manual-swipe] .collections-rail {
+    margin-inline-start: var(--collections-manual-overlap, 0px);
+  }
+}
+@media (min-width: 761px) and (prefers-reduced-motion: no-preference) {
+  .featured-collections[data-manual-swipe] .collections-rail {
+    transition: margin-inline-start .24s ease-out;
+  }
 }
 .collections-card {
   position: relative;
@@ -392,7 +460,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .price-values { display: flex; justify-content: space-between; color: var(--shop-muted); font-size: .8125rem; }
 .price-filter input[type="range"] { width: 100%; margin: 13px 0 3px; accent-color: var(--shop-olive); cursor: pointer; }
 .price-filter > p { margin: 0; color: var(--shop-muted); font-size: .75rem; }
-.filter-note { margin: 16px 0 0; color: var(--shop-muted); font-size: .75rem; line-height: 1.7; }
 
 .product-area { min-width: 0; }
 .search-control { width: min(320px, 52%); min-height: 41px; display: flex; align-items: center; gap: 9px; padding: 0 12px; border: 1px solid var(--shop-line); border-radius: 8px; background: rgba(255,255,255,.62); }
@@ -499,6 +566,10 @@ body:has(.filter-dialog[open]) { overflow: hidden; }
 .filter-done { width: 100%; min-height: 44px; border: 0; border-radius: 999px; background: var(--shop-olive); color: white; font-weight: 600; cursor: pointer; }
 
 .product-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 16px; }
+.shop-pagination { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; margin-top: 28px; font-size: .8125rem; }
+.shop-pagination button { min-height: 44px; padding: 0 14px; border: 1px solid var(--shop-line); border-radius: 999px; background: var(--shop-white); cursor: pointer; }
+.shop-pagination button:disabled { opacity: .5; cursor: default; }
+.shop-pagination button:hover:enabled { background: var(--shop-surface); }
 .product-card { min-width: 0; display: flex; flex-direction: column; }
 .product-visual { position: relative; aspect-ratio: 4 / 4.8; overflow: hidden; border-radius: 11px; background: #e1dfd8; }
 .product-detail-link { width: 100%; height: 100%; display: block; }
@@ -1327,6 +1398,15 @@ body:has(.cart-drawer[open]) {
           <p class="result-count" id="result-count" role="status"></p>
         </div>
 
+        <section class="shop-banner" aria-labelledby="shop-banner-title">
+          <img class="shop-banner-image" src="images/signup-royal-amber-editorial.png" alt="" width="1024" height="1536" loading="lazy" />
+          <div>
+            <h3 id="shop-banner-title">Royal Amber</h3>
+            <p>Eau de Parfum</p>
+            <a class="shop-banner-link" href="product.html?id=royal-amber">Shop Royal Amber</a>
+          </div>
+        </section>
+
         <div class="shop-layout">
           <div class="filter-slot" inert>
             <aside class="filter-panel" id="product-filters" aria-labelledby="filter-title">
@@ -1408,9 +1488,6 @@ body:has(.cart-drawer[open]) {
                   <p>Maximum price</p>
                 </fieldset>
 
-                <p class="filter-note">
-                  More of the AK&amp;CO collection is coming soon.
-                </p>
               </div>
             </aside>
           </div>
@@ -1422,7 +1499,13 @@ body:has(.cart-drawer[open]) {
               data-reveal-stagger
               id="product-grid"
               aria-live="polite"
+              tabindex="-1"
             ></div>
+            <nav class="shop-pagination" id="shop-pagination" aria-label="Product pages" hidden>
+              <button type="button" id="previous-page">Previous</button>
+              <span id="shop-page-status" role="status"></span>
+              <button type="button" id="next-page">Next</button>
+            </nav>
             <section
               class="empty-state"
               id="empty-state"
@@ -1819,6 +1902,12 @@ const categoryNames = {
 };
 const formatter = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
 const productGrid = document.querySelector("#product-grid");
+const pagination = document.querySelector("#shop-pagination");
+const previousPage = document.querySelector("#previous-page");
+const nextPage = document.querySelector("#next-page");
+const pageStatus = document.querySelector("#shop-page-status");
+const productsPerPage = 6;
+let currentPage = 1;
 const emptyState = document.querySelector("#empty-state");
 const searchInput = document.querySelector("#product-search");
 const sortControl = document.querySelector("#sort-products");
@@ -2092,10 +2181,12 @@ function renderFeaturedCollections() {
   let sweep = 0;
   let travel = 0;
   let frame = 0;
+  let touchStart = null;
+  let manualScrollY = 0;
 
   function update() {
     frame = 0;
-    if (!section.hasAttribute("data-pinned") || rail.contains(document.activeElement)) return;
+    if (!section.hasAttribute("data-pinned") || section.hasAttribute("data-manual-swipe") || rail.contains(document.activeElement)) return;
 
     const distance = Math.min(travel, Math.max(0, -section.getBoundingClientRect().top));
     const overlap = Math.min(sweep, distance);
@@ -2109,10 +2200,12 @@ function renderFeaturedCollections() {
   }
 
   function measure() {
+    section.removeAttribute("data-manual-swipe");
     section.removeAttribute("data-pinned");
+    sweep = Math.max(0, rail.getBoundingClientRect().left - section.getBoundingClientRect().left);
+    rail.style.setProperty("--collections-manual-overlap", `${-sweep}px`);
     if (!motion.matches || rail.scrollWidth <= rail.clientWidth) return;
 
-    sweep = Math.max(0, rail.getBoundingClientRect().left - section.getBoundingClientRect().left);
     rail.style.setProperty("--collections-overlap", `${-sweep}px`);
     section.setAttribute("data-pinned", "");
     const height = pin.offsetHeight;
@@ -2128,7 +2221,31 @@ function renderFeaturedCollections() {
     update();
   }
 
-  window.addEventListener("scroll", schedule, { passive: true });
+  function useManualSwipe() {
+    manualScrollY = window.scrollY;
+    section.setAttribute("data-manual-swipe", "");
+  }
+
+  rail.addEventListener("wheel", (event) => {
+    if (Math.abs(event.deltaX) > Math.abs(event.deltaY) || (event.shiftKey && event.deltaY)) useManualSwipe();
+  }, { passive: true });
+  rail.addEventListener("touchstart", (event) => {
+    const touch = event.touches[0];
+    touchStart = event.touches.length === 1 ? [touch.clientX, touch.clientY] : null;
+  }, { passive: true });
+  rail.addEventListener("touchmove", (event) => {
+    if (!touchStart || event.touches.length !== 1) return;
+    const touch = event.touches[0];
+    const dx = Math.abs(touch.clientX - touchStart[0]);
+    if (dx > 8 && dx > Math.abs(touch.clientY - touchStart[1])) useManualSwipe();
+  }, { passive: true });
+  rail.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight") useManualSwipe();
+  });
+  window.addEventListener("scroll", () => {
+    if (window.scrollY !== manualScrollY) section.removeAttribute("data-manual-swipe");
+    schedule();
+  }, { passive: true });
   window.addEventListener("resize", measure);
   rail.addEventListener("focusout", schedule);
   motion.addEventListener("change", measure);
@@ -2154,9 +2271,16 @@ function updateCategoryCounts() {
   });
 }
 
-function renderProducts() {
+function renderProducts(page = 1) {
   const visibleProducts = getVisibleProducts();
-  productGrid.replaceChildren(...visibleProducts.map((product) => productCard(product)));
+  const totalPages = Math.max(1, Math.ceil(visibleProducts.length / productsPerPage));
+  currentPage = Math.min(Math.max(1, page), totalPages);
+  const start = (currentPage - 1) * productsPerPage;
+  productGrid.replaceChildren(...visibleProducts.slice(start, start + productsPerPage).map(productCard));
+  pagination.hidden = totalPages === 1;
+  previousPage.disabled = currentPage === 1;
+  nextPage.disabled = currentPage === totalPages;
+  pageStatus.textContent = `Page ${currentPage} of ${totalPages}`;
   emptyState.hidden = visibleProducts.length > 0;
   const count = visibleProducts.length;
   resultCount.textContent = `${count} ${count === 1 ? "result" : "results"}`;
@@ -2171,6 +2295,15 @@ function renderProducts() {
       : "Try adjusting your filters or search for another scent.";
   }
 }
+
+function goToPage(page) {
+  renderProducts(page);
+  productGrid.focus({ preventScroll: true });
+  productGrid.scrollIntoView({ block: "start" });
+}
+
+previousPage.addEventListener("click", () => goToPage(currentPage - 1));
+nextPage.addEventListener("click", () => goToPage(currentPage + 1));
 
 function showStatus(message) {
   shopStatus.textContent = message;
@@ -2272,8 +2405,8 @@ categoryFilters.forEach((input) => {
   });
 });
 
-typeFilters.forEach((input) => input.addEventListener("change", renderProducts));
-searchInput.addEventListener("input", renderProducts);
+typeFilters.forEach((input) => input.addEventListener("change", () => renderProducts()));
+searchInput.addEventListener("input", () => renderProducts());
 function updateSortOrder(order) {
   sortOrder = order;
   for (const option of sortOptions) {

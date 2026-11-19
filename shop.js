@@ -9,6 +9,12 @@ const categoryNames = {
 };
 const formatter = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
 const productGrid = document.querySelector("#product-grid");
+const pagination = document.querySelector("#shop-pagination");
+const previousPage = document.querySelector("#previous-page");
+const nextPage = document.querySelector("#next-page");
+const pageStatus = document.querySelector("#shop-page-status");
+const productsPerPage = 6;
+let currentPage = 1;
 const emptyState = document.querySelector("#empty-state");
 const searchInput = document.querySelector("#product-search");
 const sortControl = document.querySelector("#sort-products");
@@ -266,9 +272,16 @@ function updateCategoryCounts() {
   });
 }
 
-function renderProducts() {
+function renderProducts(page = 1) {
   const visibleProducts = getVisibleProducts();
-  productGrid.replaceChildren(...visibleProducts.map((product) => productCard(product)));
+  const totalPages = Math.max(1, Math.ceil(visibleProducts.length / productsPerPage));
+  currentPage = Math.min(Math.max(1, page), totalPages);
+  const start = (currentPage - 1) * productsPerPage;
+  productGrid.replaceChildren(...visibleProducts.slice(start, start + productsPerPage).map(productCard));
+  pagination.hidden = totalPages === 1;
+  previousPage.disabled = currentPage === 1;
+  nextPage.disabled = currentPage === totalPages;
+  pageStatus.textContent = `Page ${currentPage} of ${totalPages}`;
   emptyState.hidden = visibleProducts.length > 0;
   const count = visibleProducts.length;
   resultCount.textContent = `${count} ${count === 1 ? "result" : "results"}`;
@@ -283,6 +296,15 @@ function renderProducts() {
       : "Try adjusting your filters or search for another scent.";
   }
 }
+
+function goToPage(page) {
+  renderProducts(page);
+  productGrid.focus({ preventScroll: true });
+  productGrid.scrollIntoView({ block: "start" });
+}
+
+previousPage.addEventListener("click", () => goToPage(currentPage - 1));
+nextPage.addEventListener("click", () => goToPage(currentPage + 1));
 
 function showStatus(message) {
   shopStatus.textContent = message;
@@ -384,8 +406,8 @@ categoryFilters.forEach((input) => {
   });
 });
 
-typeFilters.forEach((input) => input.addEventListener("change", renderProducts));
-searchInput.addEventListener("input", renderProducts);
+typeFilters.forEach((input) => input.addEventListener("change", () => renderProducts()));
+searchInput.addEventListener("input", () => renderProducts());
 function updateSortOrder(order) {
   sortOrder = order;
   for (const option of sortOptions) {

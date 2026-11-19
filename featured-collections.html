@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Featured Collections | AK&amp;CO</title>
+    <style>
+:root {
+  --shop-ink: #1a1a1a;
+  --shop-muted: #65675d;
+  --shop-gold: #8b6220;
+  --serif: Georgia, serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; color: var(--shop-ink); font: 1rem/1.55 Arial, sans-serif; }
+a { color: inherit; text-decoration: none; }
+a:focus-visible { outline: 2px solid var(--shop-gold); outline-offset: 3px; }
+[hidden] { display: none !important; }
+.featured-collections {
+  --featured-gap: clamp(24px, 3vw, 48px);
+  --featured-card-width: min(340px, calc((100cqw - 2 * var(--featured-gap)) / 3));
+}
+@media (max-width: 760px) {
+  .featured-collections { --featured-card-width: 74cqw; }
+}
+
+.featured-collections { container-type: inline-size; }
+.featured-collections[data-pinned] {
+  min-height: calc(100svh + var(--collections-travel));
+}
+.collections-pin {
+  padding-block: clamp(20px, 4svh, 48px);
+  background: #f6f3ee;
+}
+.featured-collections[data-pinned] .collections-pin { position: sticky; top: 0; overflow: clip; }
+.collections-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  align-items: center;
+  gap: clamp(24px, 4vw, 68px);
+}
+.collections-intro { padding-inline-start: clamp(20px, 3.5vw, 64px); }
+.collections-intro h2 {
+  margin: 0;
+  font-size: clamp(28px, 4.4vw, 76px);
+  line-height: 1;
+  letter-spacing: -.045em;
+  text-transform: uppercase;
+}
+.collections-intro p { max-width: 34ch; color: var(--shop-muted); }
+.collections-shop {
+  display: inline-block;
+  padding: 14px 22px;
+  border-radius: 999px;
+  background: var(--shop-ink);
+  color: white;
+}
+.collections-rail {
+  position: relative;
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  background: #f6f3ee;
+  scrollbar-width: thin;
+}
+.featured-collections[data-pinned]:not([data-manual-swipe]) .collections-intro { filter: blur(var(--collections-blur, 0px)); }
+.featured-collections .collections-intro:focus-within { position: relative; z-index: 1; filter: none; }
+.featured-collections[data-pinned] .collections-rail {
+  scrollbar-width: none;
+}
+.featured-collections[data-pinned]:not([data-manual-swipe]) .collections-rail {
+  margin-inline-start: var(--collections-overlap, 0px);
+}
+@media (min-width: 761px) {
+  .featured-collections[data-manual-swipe] .collections-rail {
+    margin-inline-start: var(--collections-manual-overlap, 0px);
+  }
+}
+@media (min-width: 761px) and (prefers-reduced-motion: no-preference) {
+  .featured-collections[data-manual-swipe] .collections-rail {
+    transition: margin-inline-start .24s ease-out;
+  }
+}
+.collections-card {
+  position: relative;
+  display: grid;
+  align-items: end;
+  flex: 0 0 var(--featured-card-width);
+  min-width: 0;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 22px;
+  background: #26353f;
+  color: white;
+}
+.collections-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.collections-details {
+  position: relative;
+  display: grid;
+  gap: 4px;
+  padding: clamp(12px, 1.6vw, 20px);
+  background: linear-gradient(transparent, rgb(9 12 17 / 88%));
+}
+.collections-name { font: 400 clamp(1.125rem, 2.8vw, 2.25rem)/1.1 var(--serif); }
+.collections-rail:focus-visible, .collections-card:focus-visible {
+  outline: 2px solid var(--shop-gold);
+  outline-offset: -3px;
+}
+@media (max-width: 760px) {
+  .collections-layout { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .collections-intro, .collections-rail { padding-inline: 20px; }
+}
+    </style>
+  </head>
+  <body>
+    <section class="featured-collections" aria-labelledby="featured-collections-title" hidden>
+      <div class="collections-pin">
+        <div class="collections-layout">
+          <div class="collections-intro">
+            <h2 id="featured-collections-title">Featured Collections</h2>
+            <p>Explore fragrances and attars from AK &amp; Co.</p>
+            <a class="collections-shop" href="shop.html#collection">Shop new arrivals</a>
+          </div>
+          <div class="collections-rail" role="region" aria-label="Browse featured fragrances and attars" tabindex="0"></div>
+        </div>
+      </div>
+    </section>
+    <script src="product-data.js"></script>
+    <script>
+const products = window.AKCO.products;
+const formatter = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
+
+function productImageUrl(filename) {
+  return `${window.AKCO.imageBase}${encodeURIComponent(filename)}`;
+}
+
+function renderFeaturedCollections() {
+  const section = document.querySelector(".featured-collections");
+  const pin = section.querySelector(".collections-pin");
+  const rail = section.querySelector(".collections-rail");
+  const ids = ["amber-coffee", "vampire-blood", "royal-amber", "musk-bloom", "sandalwood", "black-oud", "amber-essence"];
+  const lineup = ids.map((id) => products.find((product) => product.id === id)).filter(Boolean);
+  if (!lineup.length) return;
+
+  for (const product of lineup) {
+    const card = document.createElement("a");
+    card.className = "collections-card";
+    card.href = `product.html?id=${encodeURIComponent(product.id)}`;
+
+    const image = document.createElement("img");
+    image.src = productImageUrl(product.image);
+    image.alt = "";
+    image.loading = "lazy";
+
+    const details = document.createElement("span");
+    details.className = "collections-details";
+    const name = document.createElement("span");
+    name.className = "collections-name";
+    name.textContent = product.name;
+    const price = document.createElement("span");
+    price.textContent = formatter.format(product.price);
+    details.append(name, price);
+    card.append(image, details);
+    rail.append(card);
+  }
+  section.hidden = false;
+
+  const motion = matchMedia("(prefers-reduced-motion: no-preference)");
+  let sweep = 0;
+  let travel = 0;
+  let frame = 0;
+  let touchStart = null;
+  let manualScrollY = 0;
+
+  function update() {
+    frame = 0;
+    if (!section.hasAttribute("data-pinned") || section.hasAttribute("data-manual-swipe") || rail.contains(document.activeElement)) return;
+
+    const distance = Math.min(travel, Math.max(0, -section.getBoundingClientRect().top));
+    const overlap = Math.min(sweep, distance);
+    rail.style.setProperty("--collections-overlap", `${-overlap}px`);
+    section.style.setProperty("--collections-blur", `${sweep ? overlap / sweep * 5 : 0}px`);
+    rail.scrollLeft = distance - overlap;
+  }
+
+  function schedule() {
+    if (!frame) frame = requestAnimationFrame(update);
+  }
+
+  function measure() {
+    section.removeAttribute("data-manual-swipe");
+    section.removeAttribute("data-pinned");
+    sweep = Math.max(0, rail.getBoundingClientRect().left - section.getBoundingClientRect().left);
+    rail.style.setProperty("--collections-manual-overlap", `${-sweep}px`);
+    if (!motion.matches || rail.scrollWidth <= rail.clientWidth) return;
+
+    rail.style.setProperty("--collections-overlap", `${-sweep}px`);
+    section.setAttribute("data-pinned", "");
+    const height = pin.offsetHeight;
+    const scrollable = rail.scrollWidth - rail.clientWidth;
+    if (height >= innerHeight || scrollable <= 0) {
+      section.removeAttribute("data-pinned");
+      return;
+    }
+
+    travel = sweep + scrollable;
+    section.style.setProperty("--collections-height", `${height}px`);
+    section.style.setProperty("--collections-travel", `${travel}px`);
+    update();
+  }
+
+  function useManualSwipe() {
+    manualScrollY = window.scrollY;
+    section.setAttribute("data-manual-swipe", "");
+  }
+
+  rail.addEventListener("wheel", (event) => {
+    if (Math.abs(event.deltaX) > Math.abs(event.deltaY) || (event.shiftKey && event.deltaY)) useManualSwipe();
+  }, { passive: true });
+  rail.addEventListener("touchstart", (event) => {
+    const touch = event.touches[0];
+    touchStart = event.touches.length === 1 ? [touch.clientX, touch.clientY] : null;
+  }, { passive: true });
+  rail.addEventListener("touchmove", (event) => {
+    if (!touchStart || event.touches.length !== 1) return;
+    const touch = event.touches[0];
+    const dx = Math.abs(touch.clientX - touchStart[0]);
+    if (dx > 8 && dx > Math.abs(touch.clientY - touchStart[1])) useManualSwipe();
+  }, { passive: true });
+  rail.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight") useManualSwipe();
+  });
+  window.addEventListener("scroll", () => {
+    if (window.scrollY !== manualScrollY) section.removeAttribute("data-manual-swipe");
+    schedule();
+  }, { passive: true });
+  window.addEventListener("resize", measure);
+  rail.addEventListener("focusout", schedule);
+  motion.addEventListener("change", measure);
+  measure();
+}
+
+renderFeaturedCollections();
+    </script>
+  </body>
+</html>
