@@ -2181,16 +2181,36 @@ function renderFeaturedCollections() {
   let frame = 0;
   let touchStart = null;
   let manualScrollY = 0;
+  let scrollAnchor = null;
 
   function update() {
     frame = 0;
-    if (!section.hasAttribute("data-pinned") || section.hasAttribute("data-manual-swipe") || rail.contains(document.activeElement)) return;
+    if (!section.hasAttribute("data-pinned") || rail.contains(document.activeElement)) return;
 
     const distance = Math.min(travel, Math.max(0, -section.getBoundingClientRect().top));
-    const overlap = Math.min(sweep, distance);
+    if (section.hasAttribute("data-manual-swipe")) {
+      if (window.scrollY === manualScrollY) return;
+      scrollAnchor = { distance, progress: Math.min(travel, sweep + rail.scrollLeft) };
+      section.removeAttribute("data-manual-swipe");
+    }
+
+    // Keep the swipe position as the starting point while preserving both ends of the scroll range.
+    let progress = distance;
+    if (scrollAnchor) {
+      const { distance: start, progress: current } = scrollAnchor;
+      if (distance < start) {
+        progress = current * distance / start;
+      } else if (distance > start) {
+        progress = current + (travel - current) * (distance - start) / (travel - start);
+      } else {
+        progress = current;
+      }
+    }
+
+    const overlap = Math.min(sweep, progress);
     rail.style.setProperty("--collections-overlap", `${-overlap}px`);
     section.style.setProperty("--collections-blur", `${sweep ? overlap / sweep * 5 : 0}px`);
-    rail.scrollLeft = distance - overlap;
+    rail.scrollLeft = progress - overlap;
   }
 
   function schedule() {
@@ -2198,11 +2218,14 @@ function renderFeaturedCollections() {
   }
 
   function measure() {
+    const manualSwipe = section.hasAttribute("data-manual-swipe");
     section.removeAttribute("data-manual-swipe");
     section.removeAttribute("data-pinned");
     sweep = Math.max(0, rail.getBoundingClientRect().left - section.getBoundingClientRect().left);
     rail.style.setProperty("--collections-manual-overlap", `${-sweep}px`);
-    if (!motion.matches || rail.scrollWidth <= rail.clientWidth) return;
+    const canPin = motion.matches && rail.scrollWidth > rail.clientWidth;
+    section.toggleAttribute("data-manual-swipe", manualSwipe);
+    if (!canPin) return;
 
     rail.style.setProperty("--collections-overlap", `${-sweep}px`);
     section.setAttribute("data-pinned", "");
@@ -2214,6 +2237,10 @@ function renderFeaturedCollections() {
     }
 
     travel = sweep + scrollable;
+    if (scrollAnchor) {
+      scrollAnchor.distance = Math.min(scrollAnchor.distance, travel);
+      scrollAnchor.progress = Math.min(scrollAnchor.progress, travel);
+    }
     section.style.setProperty("--collections-height", `${height}px`);
     section.style.setProperty("--collections-travel", `${travel}px`);
     update();
@@ -2240,10 +2267,7 @@ function renderFeaturedCollections() {
   rail.addEventListener("keydown", (event) => {
     if (event.key === "ArrowLeft" || event.key === "ArrowRight") useManualSwipe();
   });
-  window.addEventListener("scroll", () => {
-    if (window.scrollY !== manualScrollY) section.removeAttribute("data-manual-swipe");
-    schedule();
-  }, { passive: true });
+  window.addEventListener("scroll", schedule, { passive: true });
   window.addEventListener("resize", measure);
   rail.addEventListener("focusout", schedule);
   motion.addEventListener("change", measure);

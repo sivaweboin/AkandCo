@@ -38,7 +38,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--gold); outline-
 .back-link span { color: var(--olive); font-size: 1.1875rem; transition: transform .2s; }
 .back-link:hover span { transform: translateX(-3px); }
 .product-layout { min-height: min(760px, calc(100vh - 85px)); display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(390px, .95fr); align-items: start; margin-top: 16px; }
-.product-gallery { display: flex; flex-direction: column; background: transparent; }
+.product-gallery { position: sticky; top: 90px; align-self: start; display: flex; flex-direction: column; background: transparent; }
+.gallery-arrow[hidden], .gallery-navigation[hidden] { display: none; }
 .product-image-frame { position: relative; width: 100%; height: clamp(480px, calc(100svh - 140px), 680px); overflow: hidden; touch-action: pan-y pinch-zoom; }
 .product-image-frame img { width: 100%; height: 100%; position: absolute; inset: 0; display: block; object-fit: contain; background: transparent; }
 .product-badge { top: 28px; left: 28px; }
@@ -227,6 +228,7 @@ body:has(.sticky-purchase.is-visible) { padding-bottom: calc(90px + env(safe-are
 @media (max-width: 760px) {
   .product-page { padding: 13px 18px 34px; }
   .product-layout { min-height: 0; grid-template-columns: 1fr; margin-top: 12px; }
+  .product-gallery { position: static; }
   .product-image-frame { height: min(105vw, 500px); }
   .gallery-navigation { min-height: 38px; }
   .gallery-previous { left: 10px; }
@@ -1009,7 +1011,7 @@ body:has(.cart-drawer[open]) {
 window.AKCO = window.AKCO || {};
 window.AKCO.imageBase = "images/";
 window.AKCO.products = [
-  { id: "amber-coffee", name: "Amber Coffee", type: "Perfume", size: "10ml", category: "perfumes", price: 249, image: "amber-coffee.png", description: "Indulge in the irresistible richness of coffee! Experience a luxurious blend of aromatic spices, delicious praline and rich coffee, beautifully wrapped in creamy vanilla and warm tonka beans. A captivating fragrance that leaves a sweet, elegant and unforgettable impression.", tagline: "Warmth. Sweetness. Pure Indulgence.", priceTagline: "Where Arabian Coffee Meets Pure Elegance." },
+  { id: "amber-coffee", name: "Amber Coffee", type: "Perfume", size: "10ml", category: "perfumes", price: 249, image: "amber-coffee.png", description: "Indulge in the irresistible richness of coffee! Experience a luxurious blend of aromatic spices, delicious praline and rich coffee, beautifully wrapped in creamy vanilla and warm tonka beans. A captivating fragrance that leaves a sweet, elegant and unforgettable impression.", tagline: "Warmth. Sweetness. Pure Indulgence.", priceTagline: "Where Arabian Coffee Meets Pure Elegance", priceTaglineDescription: "It's elegant, memorable and communicates the fragrance character beautifully." },
   { id: "vampire-blood", name: "Vampire Blood", type: "Perfume", size: "10ml", category: "perfumes", price: 249, image: "vampire-blood.png", inspiredBy: "Bath & Body Works", notes: "Red Berries, Plum and Jasmine", headline: "UNLEASH YOUR DARK SIDE", description: "Indulge in an irresistible blend of juicy red berries, enchanting night-blooming jasmine and rich dark plum. A deliciously sweet and mysterious fragrance that creates a captivating impression wherever you go.", character: "JUICY • SWEET • FLORAL • MYSTERIOUS", tagline: "A fragrance that's impossible to forget.", bestSuitedFor: ["Everyday wear", "Casual outings", "Evening occasions", "Parties and celebrations", "Customers who love sweet fruity fragrances"], priceTagline: "Juicy berries with a darker side." },
   // { id: "oud-al-ameer", name: "Oud Al Ameer", type: "Eau de Parfum", size: "100ml", category: "perfumes", price: 4250, image: "oud-al-ameer-gold.jpg", badge: "Signature" },
   { id: "royal-amber", name: "Royal Amber", type: "Eau de Parfum", size: "10ml", category: "perfumes", price: 249, image: "royal-amber-featured.png", badge: "Bestseller", priceTagline: "A golden glow that lingers." },
@@ -1229,7 +1231,7 @@ if (!product) {
 } else {
   const productImage = document.querySelector("#product-image");
   const imageFrame = document.querySelector(".product-image-frame");
-  const galleryProducts = window.AKCO.products;
+  const galleryProducts = [product];
   const priceBySize = product.category === "attars" ? { 3: 149, 6: 299, 12: 599 } : { 10: 249, 30: 599, 50: 999, 100: 1499 };
   const sizeOptions = Object.keys(priceBySize).map(Number);
   const baseSize = Number.parseInt(product.size, 10);
@@ -1239,7 +1241,13 @@ if (!product) {
   const priceOutput = document.querySelector("#product-price");
   const priceTagline = document.querySelector("#product-price-tagline");
   if (product.priceTagline) {
-    priceTagline.textContent = product.priceTagline;
+    if (product.priceTaglineDescription) {
+      const emphasis = document.createElement("strong");
+      emphasis.textContent = '"' + product.priceTagline + '"';
+      priceTagline.append(emphasis, document.createElement("br"), document.createTextNode(product.priceTaglineDescription));
+    } else {
+      priceTagline.textContent = product.priceTagline;
+    }
     priceTagline.hidden = false;
   }
   const quantityOutput = document.querySelector("#quantity-value");
@@ -1388,6 +1396,12 @@ if (!product) {
       .forEach((dot, dotIndex) => {
         dot.setAttribute("aria-pressed", String(dotIndex === activeImageIndex));
       });
+  }
+
+  if (galleryProducts.length === 1) {
+    galleryNavigation.hidden = true;
+    document.querySelector("#gallery-previous").hidden = true;
+    document.querySelector("#gallery-next").hidden = true;
   }
 
   galleryProducts.forEach((item, index) => {

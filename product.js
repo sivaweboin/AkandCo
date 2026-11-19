@@ -14,7 +14,7 @@ if (!product) {
 } else {
   const productImage = document.querySelector("#product-image");
   const imageFrame = document.querySelector(".product-image-frame");
-  const galleryProducts = window.AKCO.products;
+  const galleryProducts = [product];
   const priceBySize = product.category === "attars" ? { 3: 149, 6: 299, 12: 599 } : { 10: 249, 30: 599, 50: 999, 100: 1499 };
   const sizeOptions = Object.keys(priceBySize).map(Number);
   const baseSize = Number.parseInt(product.size, 10);
@@ -24,7 +24,13 @@ if (!product) {
   const priceOutput = document.querySelector("#product-price");
   const priceTagline = document.querySelector("#product-price-tagline");
   if (product.priceTagline) {
-    priceTagline.textContent = product.priceTagline;
+    if (product.priceTaglineDescription) {
+      const emphasis = document.createElement("strong");
+      emphasis.textContent = '"' + product.priceTagline + '"';
+      priceTagline.append(emphasis, document.createElement("br"), document.createTextNode(product.priceTaglineDescription));
+    } else {
+      priceTagline.textContent = product.priceTagline;
+    }
     priceTagline.hidden = false;
   }
   const quantityOutput = document.querySelector("#quantity-value");
@@ -173,6 +179,12 @@ if (!product) {
       .forEach((dot, dotIndex) => {
         dot.setAttribute("aria-pressed", String(dotIndex === activeImageIndex));
       });
+  }
+
+  if (galleryProducts.length === 1) {
+    galleryNavigation.hidden = true;
+    document.querySelector("#gallery-previous").hidden = true;
+    document.querySelector("#gallery-next").hidden = true;
   }
 
   galleryProducts.forEach((item, index) => {

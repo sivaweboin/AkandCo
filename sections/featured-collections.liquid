@@ -1,0 +1,299 @@
+{% style %}
+.akco-featured-collections {
+  --akco-collections-ink: #1a1a1a;
+  --akco-collections-muted: #65675d;
+  --akco-collections-gold: #8b6220;
+  --akco-collections-serif: Georgia, serif;
+  --featured-gap: clamp(24px, 3vw, 48px);
+  --featured-card-width: min(340px, calc((100cqw - 2 * var(--featured-gap)) / 3));
+  color: var(--akco-collections-ink);
+  font: 1rem/1.55 Arial, sans-serif;
+}
+.akco-featured-collections, .akco-featured-collections * { box-sizing: border-box; }
+.akco-featured-collections a { text-decoration: none; }
+.akco-collections-card:visited { color: white; }
+.akco-collections-shop:focus-visible {
+  outline: 2px solid var(--akco-collections-gold);
+  outline-offset: 3px;
+}
+.akco-collections-empty { align-self: center; padding: 20px; }
+@media (max-width: 760px) {
+  .akco-featured-collections { --featured-card-width: 74cqw; }
+}
+
+.akco-featured-collections { container-type: inline-size; }
+.akco-featured-collections[data-pinned] {
+  min-height: calc(var(--collections-height) + var(--collections-travel));
+}
+.akco-collections-pin {
+  padding-block: clamp(20px, 4svh, 48px);
+  background: #f6f3ee;
+}
+.akco-featured-collections[data-pinned] .akco-collections-pin { position: sticky; top: 0; overflow: clip; }
+.akco-collections-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  align-items: center;
+  gap: clamp(24px, 4vw, 68px);
+}
+.akco-collections-intro { padding-inline-start: clamp(20px, 3.5vw, 64px); }
+.akco-collections-intro h2 {
+  margin: 0;
+  color: inherit;
+  font-family: inherit;
+  font-size: clamp(28px, 4.4vw, 76px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -.045em;
+  text-transform: uppercase;
+}
+.akco-collections-intro p { max-width: 34ch; color: var(--akco-collections-muted); }
+.akco-collections-shop {
+  display: inline-block;
+  padding: 14px 22px;
+  border-radius: 999px;
+  background: var(--akco-collections-ink);
+  color: white;
+}
+.akco-collections-rail {
+  position: relative;
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  background: #f6f3ee;
+  scrollbar-width: thin;
+}
+.akco-featured-collections[data-pinned]:not([data-manual-swipe]) .akco-collections-intro { filter: blur(var(--collections-blur, 0px)); }
+.akco-featured-collections .akco-collections-intro:focus-within { position: relative; z-index: 1; filter: none; }
+.akco-featured-collections[data-pinned] .akco-collections-rail {
+  scrollbar-width: none;
+}
+.akco-featured-collections[data-pinned]:not([data-manual-swipe]) .akco-collections-rail {
+  margin-inline-start: var(--collections-overlap, 0px);
+}
+@media (min-width: 761px) {
+  .akco-featured-collections[data-manual-swipe] .akco-collections-rail {
+    margin-inline-start: var(--collections-manual-overlap, 0px);
+  }
+}
+@media (min-width: 761px) and (prefers-reduced-motion: no-preference) {
+  .akco-featured-collections[data-manual-swipe] .akco-collections-rail {
+    transition: margin-inline-start .24s ease-out;
+  }
+}
+.akco-collections-card {
+  position: relative;
+  display: grid;
+  align-items: end;
+  flex: 0 0 var(--featured-card-width);
+  min-width: 0;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 22px;
+  background: #26353f;
+  color: white;
+}
+.akco-collections-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.akco-collections-details {
+  position: relative;
+  display: grid;
+  gap: 4px;
+  padding: clamp(12px, 1.6vw, 20px);
+  background: linear-gradient(transparent, rgb(9 12 17 / 88%));
+}
+.akco-collections-name { font: 400 clamp(1.125rem, 2.8vw, 2.25rem)/1.1 var(--akco-collections-serif); }
+.akco-collections-rail:focus-visible, .akco-collections-card:focus-visible {
+  outline: 2px solid var(--akco-collections-gold);
+  outline-offset: -3px;
+}
+@media (max-width: 760px) {
+  .akco-collections-layout { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .akco-collections-intro, .akco-collections-rail { padding-inline: 20px; }
+}
+{% endstyle %}
+
+{%- liquid
+  assign featured_collection = section.settings.collection
+  assign featured_products = section.settings.products
+  if featured_products == blank and featured_collection != blank
+    assign featured_products = featured_collection.products
+  endif
+  assign button_url = section.settings.button_url | default: featured_collection.url | default: routes.all_products_collection_url
+-%}
+
+{% if featured_products != blank or request.design_mode %}
+  <section class="akco-featured-collections" aria-labelledby="AkcoCollectionsTitle-{{ section.id }}">
+    <div class="akco-collections-pin">
+      <div class="akco-collections-layout">
+        <div class="akco-collections-intro">
+          <h2 id="AkcoCollectionsTitle-{{ section.id }}">{{ section.settings.heading | default: 'Featured Collections' | escape }}</h2>
+          {% if section.settings.description != blank %}
+            <p>{{ section.settings.description | escape }}</p>
+          {% endif %}
+          {% if section.settings.button_label != blank %}
+            <a class="akco-collections-shop" href="{{ button_url | escape }}">{{ section.settings.button_label | escape }}</a>
+          {% endif %}
+        </div>
+        {% if featured_products != blank %}
+          <div class="akco-collections-rail" role="region" aria-labelledby="AkcoCollectionsTitle-{{ section.id }}" tabindex="0">
+            {% for featured_product in featured_products limit: 12 %}
+              <a class="akco-collections-card" href="{{ featured_product.url | escape }}">
+                {% if featured_product.featured_image != blank %}
+                  {{ featured_product.featured_image | image_url: width: 1020 | image_tag: widths: '360, 540, 720, 1020', sizes: '(max-width: 760px) 74vw, 340px', loading: 'lazy', alt: '' }}
+                {% endif %}
+                <span class="akco-collections-details">
+                  <span class="akco-collections-name">{{ featured_product.title | escape }}</span>
+                  <span>{{ featured_product.price | money }}</span>
+                </span>
+              </a>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="akco-collections-empty">Select a collection or choose products to show here.</p>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+{% endif %}
+
+{% javascript %}
+(() => {
+  const selector = ".akco-featured-collections";
+  const instances = new WeakMap();
+
+  function initialize(section) {
+    const rail = section.querySelector(".akco-collections-rail");
+    if (!rail || instances.has(section)) return;
+    const pin = section.querySelector(".akco-collections-pin");
+    const controller = new AbortController();
+    const { signal } = controller;
+    instances.set(section, controller);
+
+    const motion = matchMedia("(prefers-reduced-motion: no-preference)");
+    let sweep = 0;
+    let travel = 0;
+    let frame = 0;
+    let touchStart = null;
+    let manualScrollY = 0;
+    let scrollAnchor = null;
+
+    function update() {
+      frame = 0;
+      if (!section.hasAttribute("data-pinned") || rail.contains(document.activeElement)) return;
+
+      const distance = Math.min(travel, Math.max(0, -section.getBoundingClientRect().top));
+      if (section.hasAttribute("data-manual-swipe")) {
+        if (window.scrollY === manualScrollY) return;
+        scrollAnchor = { distance, progress: Math.min(travel, sweep + rail.scrollLeft) };
+        section.removeAttribute("data-manual-swipe");
+      }
+
+      // Keep the swipe position as the starting point while preserving both ends of the scroll range.
+      let progress = distance;
+      if (scrollAnchor) {
+        const { distance: start, progress: current } = scrollAnchor;
+        if (distance < start) {
+          progress = current * distance / start;
+        } else if (distance > start) {
+          progress = current + (travel - current) * (distance - start) / (travel - start);
+        } else {
+          progress = current;
+        }
+      }
+
+      const overlap = Math.min(sweep, progress);
+      rail.style.setProperty("--collections-overlap", `${-overlap}px`);
+      section.style.setProperty("--collections-blur", `${sweep ? overlap / sweep * 5 : 0}px`);
+      rail.scrollLeft = progress - overlap;
+    }
+
+    function schedule() {
+      if (!frame) frame = requestAnimationFrame(update);
+    }
+
+    function measure() {
+      const manualSwipe = section.hasAttribute("data-manual-swipe");
+      section.removeAttribute("data-manual-swipe");
+      section.removeAttribute("data-pinned");
+      sweep = Math.max(0, rail.getBoundingClientRect().left - section.getBoundingClientRect().left);
+      rail.style.setProperty("--collections-manual-overlap", `${-sweep}px`);
+      const canPin = motion.matches && rail.scrollWidth > rail.clientWidth;
+      section.toggleAttribute("data-manual-swipe", manualSwipe);
+      if (!canPin) return;
+
+      rail.style.setProperty("--collections-overlap", `${-sweep}px`);
+      section.setAttribute("data-pinned", "");
+      const height = pin.offsetHeight;
+      const scrollable = rail.scrollWidth - rail.clientWidth;
+      if (height >= innerHeight || scrollable <= 0) {
+        section.removeAttribute("data-pinned");
+        return;
+      }
+
+      travel = sweep + scrollable;
+      if (scrollAnchor) {
+        scrollAnchor.distance = Math.min(scrollAnchor.distance, travel);
+        scrollAnchor.progress = Math.min(scrollAnchor.progress, travel);
+      }
+      section.style.setProperty("--collections-height", `${height}px`);
+      section.style.setProperty("--collections-travel", `${travel}px`);
+      update();
+    }
+
+    function useManualSwipe() {
+      manualScrollY = window.scrollY;
+      section.setAttribute("data-manual-swipe", "");
+    }
+
+    rail.addEventListener("wheel", (event) => {
+      if (Math.abs(event.deltaX) > Math.abs(event.deltaY) || (event.shiftKey && event.deltaY)) useManualSwipe();
+    }, { passive: true, signal });
+    rail.addEventListener("touchstart", (event) => {
+      const touch = event.touches[0];
+      touchStart = event.touches.length === 1 ? [touch.clientX, touch.clientY] : null;
+    }, { passive: true, signal });
+    rail.addEventListener("touchmove", (event) => {
+      if (!touchStart || event.touches.length !== 1) return;
+      const touch = event.touches[0];
+      const dx = Math.abs(touch.clientX - touchStart[0]);
+      if (dx > 8 && dx > Math.abs(touch.clientY - touchStart[1])) useManualSwipe();
+    }, { passive: true, signal });
+    rail.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowLeft" || event.key === "ArrowRight") useManualSwipe();
+    }, { signal });
+    window.addEventListener("scroll", schedule, { passive: true, signal });
+    window.addEventListener("resize", measure, { signal });
+    rail.addEventListener("focusout", schedule, { signal });
+    motion.addEventListener("change", measure, { signal });
+    measure();
+    signal.addEventListener("abort", () => cancelAnimationFrame(frame), { once: true });
+  }
+
+  document.querySelectorAll(selector).forEach(initialize);
+  document.addEventListener("shopify:section:load", (event) => {
+    event.target.querySelectorAll(selector).forEach(initialize);
+  });
+  document.addEventListener("shopify:section:unload", (event) => {
+    event.target.querySelectorAll(selector).forEach((section) => {
+      instances.get(section)?.abort();
+      instances.delete(section);
+    });
+  });
+})();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Featured Collections",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Featured Collections" },
+    { "type": "textarea", "id": "description", "label": "Description", "default": "Explore fragrances and attars from AK & Co." },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Shop new arrivals" },
+    { "type": "url", "id": "button_url", "label": "Button link" },
+    { "type": "collection", "id": "collection", "label": "Collection" },
+    { "type": "product_list", "id": "products", "label": "Featured products", "limit": 12, "info": "Use this list to choose the products and their order. It overrides the collection." }
+  ],
+  "presets": [{ "name": "Featured Collections" }]
+}
+{% endschema %}
