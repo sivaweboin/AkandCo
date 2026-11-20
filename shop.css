@@ -407,8 +407,71 @@ body:has(.filter-dialog[open]) { overflow: hidden; }
 .filter-done { width: 100%; min-height: 44px; border: 0; border-radius: 999px; background: var(--shop-olive); color: white; font-weight: 600; cursor: pointer; }
 
 .product-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 16px; }
-.shop-pagination { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; margin-top: 28px; font-size: .8125rem; }
-.shop-pagination .featured-arrow { position: static; translate: none; }
+.shop-pagination {
+  --page-control-size: 54px;
+  --page-control-gap: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--page-control-gap);
+  margin-top: 32px;
+  color: #263659;
+}
+.shop-page-numbers {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--page-control-gap);
+  min-width: 0;
+}
+.shop-pagination button {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--page-control-size);
+  min-height: var(--page-control-size);
+  padding: 0 10px;
+  border: 1px solid #dce4ef;
+  border-radius: 18px;
+  background: #fff;
+  font-size: 1.125rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.shop-pagination button:hover:not(:disabled, [aria-current]) { background: #f1f5fb; }
+.shop-pagination button[aria-current="page"] {
+  border-color: #192860;
+  background: #192860;
+  color: #fff;
+  box-shadow: 0 0 0 3px #cbd2e1;
+  font-weight: 600;
+  cursor: default;
+}
+.shop-pagination .shop-page-direction {
+  gap: 12px;
+  padding-inline: 18px;
+  box-shadow: 0 2px 3px rgb(38 54 89 / 8%);
+  font-weight: 600;
+}
+.shop-page-direction::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border: solid currentColor;
+  border-width: 0 2px 2px 0;
+  transform: rotate(135deg);
+}
+#next-page::before { order: 1; transform: rotate(-45deg); }
+.shop-pagination button:disabled { color: #7b8698; box-shadow: none; cursor: default; }
+.shop-page-gap { padding-inline: 3px; color: #71829f; font-weight: 600; }
+
+@media (max-width: 620px) {
+  .shop-pagination { --page-control-size: 44px; --page-control-gap: 6px; }
+  .shop-pagination button { border-radius: 14px; font-size: .9375rem; }
+  .shop-pagination .shop-page-direction { gap: 6px; padding-inline: 9px; }
+}
 .product-card { min-width: 0; display: flex; flex-direction: column; }
 .product-visual { position: relative; aspect-ratio: 4 / 4.8; overflow: hidden; border-radius: 11px; background: #e1dfd8; }
 .product-detail-link { width: 100%; height: 100%; display: block; }

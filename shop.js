@@ -12,6 +12,7 @@ const productGrid = document.querySelector("#product-grid");
 const pagination = document.querySelector("#shop-pagination");
 const previousPage = document.querySelector("#previous-page");
 const nextPage = document.querySelector("#next-page");
+const pageNumbers = document.querySelector("#shop-page-numbers");
 const pageStatus = document.querySelector("#shop-page-status");
 const productsPerPage = 6;
 let currentPage = 1;
@@ -272,16 +273,50 @@ function updateCategoryCounts() {
   });
 }
 
+function renderPagination(totalPages) {
+  pagination.hidden = totalPages === 1;
+  previousPage.disabled = currentPage === 1;
+  nextPage.disabled = currentPage === totalPages;
+  pageStatus.textContent = `Page ${currentPage} of ${totalPages}`;
+
+  const windowSize = totalPages <= 5 ? totalPages : 3;
+  const first = Math.max(1, Math.min(currentPage - 1, totalPages - windowSize + 1));
+  const last = first + windowSize - 1;
+  const pages = [];
+  if (first > 1) pages.push(1);
+  if (first > 2) pages.push(first === 3 ? 2 : null);
+  for (let page = first; page <= last; page++) pages.push(page);
+  if (last < totalPages - 1) pages.push(last === totalPages - 2 ? totalPages - 1 : null);
+  if (last < totalPages) pages.push(totalPages);
+
+  pageNumbers.replaceChildren(...pages.map((page) => {
+    if (page === null) {
+      const gap = document.createElement("span");
+      gap.className = "shop-page-gap";
+      gap.setAttribute("aria-hidden", "true");
+      gap.textContent = "…";
+      return gap;
+    }
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = String(page);
+    button.setAttribute("aria-label", `Page ${page}`);
+    button.setAttribute("aria-controls", productGrid.id);
+    if (page === currentPage) button.setAttribute("aria-current", "page");
+    else button.addEventListener("click", () => goToPage(page));
+    return button;
+  }));
+}
+
 function renderProducts(page = 1) {
   const visibleProducts = getVisibleProducts();
   const totalPages = Math.max(1, Math.ceil(visibleProducts.length / productsPerPage));
   currentPage = Math.min(Math.max(1, page), totalPages);
   const start = (currentPage - 1) * productsPerPage;
-  productGrid.replaceChildren(...visibleProducts.slice(start, start + productsPerPage).map(productCard));
-  pagination.hidden = totalPages === 1;
-  previousPage.disabled = currentPage === 1;
-  nextPage.disabled = currentPage === totalPages;
-  pageStatus.textContent = `Page ${currentPage} of ${totalPages}`;
+  const pageProducts = visibleProducts.slice(start, start + productsPerPage);
+  productGrid.replaceChildren(...pageProducts.map((product) => productCard(product)));
+  renderPagination(totalPages);
   emptyState.hidden = visibleProducts.length > 0;
   const count = visibleProducts.length;
   resultCount.textContent = `${count} ${count === 1 ? "result" : "results"}`;
