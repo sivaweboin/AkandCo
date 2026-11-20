@@ -45,19 +45,33 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   position: relative;
   isolation: isolate;
   padding: clamp(34px, 5vw, 72px) 0 30px;
-  background:
-    radial-gradient(ellipse at 50% 61%, color-mix(in srgb, var(--featured-glow) 60%, transparent) 0%, transparent 65%),
-    url("images/featured-glass-backdrop.webp") center / cover no-repeat,
-    #f4f0ed;
+  background: #fff;
   transition: --featured-glow .4s ease;
 }
-.featured-backdrops { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
-.featured-backdrops img {
+.featured-backdrops {
+  /* Keep the full image height so the white edges stay visible. */
+  --backdrop-width: max(100%, calc(100cqh * 1672 / 941));
   position: absolute;
   inset: 0;
-  width: 100%;
+  z-index: -1;
+  pointer-events: none;
+  container-type: size;
+  overflow: hidden;
+}
+.featured-backdrops::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 75% 58% at 50% 61%, color-mix(in srgb, var(--featured-glow) 60%, transparent) 0%, transparent 65%),
+    url("images/featured-glass-backdrop-fade.webp") center / var(--backdrop-width) 100% no-repeat;
+}
+.featured-backdrops img {
+  position: absolute;
+  inset: 0 auto 0 50%;
+  width: var(--backdrop-width);
   height: 100%;
-  object-fit: cover;
+  transform: translateX(-50%);
   opacity: 0;
   transition: opacity .38s ease-in-out;
 }
