@@ -33,7 +33,7 @@
   margin: 0 auto clamp(24px, 4vw, 48px);
 }
 
-.akco-testimonials-header:has(.akco-testimonials-summary) {
+.akco-testimonials-header:has(.akco-testimonials-intro) {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(180px, 248px);
   align-items: end;
@@ -52,6 +52,26 @@
   display: block;
   color: var(--testimonial-accent);
   font-weight: 400;
+}
+
+.akco-testimonials-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  margin: 0 0 .75rem;
+  color: #d6ed9a;
+  font-size: .6875rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.akco-testimonials-eyebrow::before {
+  content: "";
+  width: .4rem;
+  height: .4rem;
+  border-radius: 50%;
+  background: currentColor;
 }
 
 .akco-testimonials-summary {
@@ -195,10 +215,10 @@
     z-index: -1;
     top: var(--testimonial-shine-y, 50%);
     left: var(--testimonial-shine-x, 50%);
-    width: 125%;
-    height: 155%;
-    transform: translate(-50%, -50%) rotate(31deg);
-    background: radial-gradient(ellipse 31% 53% at center, rgb(215 232 255 / 38%), rgb(151 191 255 / 16%) 48%, transparent 100%);
+    width: 65%;
+    height: 260%;
+    transform: translate(-50%, -50%) rotate(28deg);
+    background: linear-gradient(90deg, transparent, rgb(174 208 255 / 8%) 24%, rgb(225 240 255 / 24%) 50%, rgb(174 208 255 / 8%) 76%, transparent);
     opacity: 0;
     pointer-events: none;
     transition: opacity var(--testimonial-color-fade);
@@ -261,7 +281,7 @@
     --testimonial-wave-height: 30px;
   }
 
-  .akco-testimonials-header:has(.akco-testimonials-summary) { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .akco-testimonials-header:has(.akco-testimonials-intro) { grid-template-columns: minmax(0, 1fr); gap: 18px; }
   .akco-testimonials-header h2 { font-size: clamp(2.7rem, 10vw, 4.5rem); }
   .akco-testimonials-viewport[data-wave] { mask-image: linear-gradient(to right, transparent, #000 5%, #000 96%, transparent); }
   .akco-testimonials-viewport:focus-visible[data-wave] { mask-image: none; }

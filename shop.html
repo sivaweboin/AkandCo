@@ -324,29 +324,19 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 .featured-collections {
   --featured-card-width: min(400px, 40cqw);
+  --collections-background: #f6f3ee;
   container-type: inline-size;
+  background: var(--collections-background);
 }
 @media (max-width: 760px) {
   .featured-collections { --featured-card-width: min(400px, 82cqw); }
 }
-.featured-collections[data-pinned]::after {
-  content: "";
-  display: block;
-  height: var(--collections-spacer-height, 0px);
-}
-.collections-pin, .featured-collections[data-pinned] {
-  background: #f6f3ee;
-}
-.featured-collections[data-pinned] .collections-pin {
-  position: sticky;
-  top: 0;
-  overflow: clip;
-}
 .collections-layout {
+  --collections-column-gap: clamp(24px, 4vw, 68px);
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
   align-items: center;
-  gap: clamp(24px, 4vw, 68px);
+  gap: var(--collections-column-gap);
   padding-block: clamp(32px, 6svh, 64px) clamp(20px, 4svh, 48px);
 }
 .collections-intro { padding-inline-start: clamp(20px, 3.5vw, 64px); }
@@ -367,39 +357,18 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 }
 .collections-rail {
   position: relative;
-  display: flex;
-  gap: 16px;
   overflow-x: auto;
   scroll-behavior: auto;
   overscroll-behavior-x: contain;
   padding-bottom: 8px;
-  background: #f6f3ee;
-  scrollbar-width: thin;
-}
-.featured-collections[data-pinned]:not([data-manual-swipe]) .collections-intro { filter: blur(var(--collections-blur, 0px)); }
-.featured-collections .collections-intro:focus-within { position: relative; z-index: 1; filter: none; }
-.featured-collections[data-pinned] .collections-rail {
-  margin-inline-start: var(--collections-manual-overlap, 0px);
   scrollbar-width: none;
-  translate: var(--collections-rail-shift, 0px) 0;
-  will-change: translate;
 }
-.featured-collections[data-pinned] { overflow-anchor: none; }
-.featured-collections[data-pinned][data-manual-swipe] .collections-rail {
-  translate: 0 0;
-}
-@media (min-width: 761px) {
-  .featured-collections:not([data-pinned])[data-manual-swipe] .collections-rail {
-    margin-inline-start: var(--collections-manual-overlap, 0px);
-  }
-}
-@media (min-width: 761px) and (prefers-reduced-motion: no-preference) {
-  .featured-collections[data-pinned][data-manual-swipe] .collections-rail {
-    transition: translate .24s ease-out;
-  }
-  .featured-collections:not([data-pinned])[data-manual-swipe] .collections-rail {
-    transition: margin-inline-start .24s ease-out;
-  }
+.collections-rail::-webkit-scrollbar { display: none; }
+.collections-cards {
+  display: flex;
+  inline-size: max-content;
+  gap: 16px;
+  background: var(--collections-background);
 }
 .collections-card {
   position: relative;
@@ -473,6 +442,20 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .collections-add:focus-visible, .collections-wishlist:focus-visible {
   outline: 2px solid var(--shop-gold);
   outline-offset: -3px;
+}
+@media (width > 760px) {
+  .collections-intro { grid-area: 1 / 1; }
+  .collections-shop:focus-visible { position: relative; z-index: 1; }
+  .collections-rail {
+    grid-area: 1 / 1 / 2 / -1;
+    /* Start in the second column, then let the cards scroll over the title. */
+    padding-inline-start: calc((100% - var(--collections-column-gap)) * .4 + var(--collections-column-gap));
+    pointer-events: none;
+  }
+  .collections-cards { pointer-events: auto; }
+}
+@media (width > 760px) and (prefers-reduced-motion: no-preference) {
+  .collections-intro > :not(:focus-visible) { filter: blur(var(--collections-blur, 0px)); }
 }
 @media (max-width: 760px) {
   .collections-layout { grid-template-columns: minmax(0, 1fr); gap: 18px; }
@@ -1323,14 +1306,14 @@ body:has(.cart-drawer[open]) {
       </section>
 
       <section class="featured-collections" aria-labelledby="featured-collections-title" hidden>
-        <div class="collections-pin">
-          <div class="collections-layout">
-            <div class="collections-intro">
-              <h2 id="featured-collections-title">Featured Collections</h2>
-              <p>Explore fragrances and attars from AK &amp; Co.</p>
-              <a class="collections-shop" href="#collection">Shop new arrivals</a>
-            </div>
-            <div class="collections-rail" role="region" aria-label="Browse featured fragrances and attars" tabindex="0"></div>
+        <div class="collections-layout">
+          <div class="collections-intro">
+            <h2 id="featured-collections-title">Featured Collections</h2>
+            <p>Explore fragrances and attars from AK &amp; Co.</p>
+            <a class="collections-shop" href="#collection">Shop new arrivals</a>
+          </div>
+          <div class="collections-rail" role="region" aria-label="Browse featured fragrances and attars" tabindex="0">
+            <div class="collections-cards"></div>
           </div>
         </div>
       </section>
@@ -1604,6 +1587,10 @@ body:has(.cart-drawer[open]) {
       <akco-testimonials class="akco-testimonials" id="customer-reviews" role="region" aria-labelledby="customer-reviews-title">
         <div class="akco-testimonials-header">
           <h2 id="customer-reviews-title">Scents worth <em>talking about.</em></h2>
+          <div class="akco-testimonials-intro">
+            <p class="akco-testimonials-eyebrow">Client Stories / 06</p>
+            <p class="akco-testimonials-summary">People make the difference. Here’s what building together feels like.</p>
+          </div>
         </div>
         <div class="akco-testimonials-viewport" id="customer-reviews-track" role="group" aria-label="Scrollable reviews" tabindex="0">
           <div class="akco-testimonials-track">
@@ -2310,8 +2297,8 @@ function renderFeaturedProducts() {
 
 function renderFeaturedCollections() {
   const section = document.querySelector(".featured-collections");
-  const layout = section.querySelector(".collections-layout");
   const rail = section.querySelector(".collections-rail");
+  const cards = rail.querySelector(".collections-cards");
   const ids = ["amber-coffee", "vampire-blood", "royal-amber", "musk-bloom", "sandalwood", "black-oud", "amber-essence"];
   const lineup = ids.map((id) => products.find((product) => product.id === id)).filter(Boolean);
   if (!lineup.length) return;
@@ -2346,134 +2333,14 @@ function renderFeaturedCollections() {
     actions.append(price, addButton);
     details.append(name, actions);
     card.append(link, details, createFavoriteButton(product, "collections-wishlist"));
-    rail.append(card);
+    cards.append(card);
   }
   section.hidden = false;
 
-  const motion = matchMedia("(prefers-reduced-motion: no-preference)");
-  let sweep = 0;
-  let travel = 0;
-  let approachDistance = 0;
-  let pinDistance = 0;
-  let frame = 0;
-  let touchStart = null;
-  let manualScrollY = 0;
-  let scrollAnchor = null;
-  let viewportWidth = window.innerWidth;
-
-  function update() {
-    frame = 0;
-    if (!section.hasAttribute("data-pinned")) return;
-
-    if (rail.contains(document.activeElement) && document.activeElement.matches(":focus-visible")) return;
-
-    const top = section.getBoundingClientRect().top;
-    const fraction = (approachDistance - top) / (approachDistance + pinDistance);
-    const distance = Math.min(1, Math.max(0, fraction)) * travel;
-    if (section.hasAttribute("data-manual-swipe")) {
-      if (window.scrollY === manualScrollY) return;
-      scrollAnchor = { distance, progress: Math.min(travel, sweep + rail.scrollLeft) };
-      section.removeAttribute("data-manual-swipe");
-    }
-
-    // Keep the swipe position as the starting point while preserving both ends of the scroll range.
-    let progress = distance;
-    if (scrollAnchor) {
-      const { distance: start, progress: current } = scrollAnchor;
-      if (distance < start) {
-        progress = current * distance / start;
-      } else if (distance > start) {
-        progress = current + (travel - current) * (distance - start) / (travel - start);
-      } else {
-        progress = current;
-      }
-    }
-
-    const overlap = Math.min(sweep, progress);
-    rail.style.setProperty("--collections-rail-shift", `${sweep - overlap}px`);
-    section.style.setProperty("--collections-blur", `${sweep ? overlap / sweep * 5 : 0}px`);
-    const scrollLeft = progress - overlap;
-    if (Math.abs(rail.scrollLeft - scrollLeft) >= 0.5) rail.scrollLeft = scrollLeft;
-  }
-
-  function schedule() {
-    if (!frame) frame = requestAnimationFrame(update);
-  }
-
-  function measure() {
-    const railStyle = getComputedStyle(rail);
-    const margin = parseFloat(railStyle.marginInlineStart) || 0;
-    const shift = parseFloat(railStyle.translate) || 0;
-    sweep = Math.max(0, rail.getBoundingClientRect().left - section.getBoundingClientRect().left - margin - shift);
-    rail.style.setProperty("--collections-manual-overlap", `${-sweep}px`);
-
-    // Keep the runway in place while measuring so the scroll position cannot jump.
-    const canPin = motion.matches && rail.scrollWidth > section.clientWidth;
-    if (!canPin || layout.offsetHeight >= innerHeight) {
-      section.removeAttribute("data-pinned");
-      return;
-    }
-
-    if (!section.hasAttribute("data-pinned")) {
-      rail.style.setProperty("--collections-rail-shift", `${sweep}px`);
-      section.setAttribute("data-pinned", "");
-    }
-
-    const scrollable = rail.scrollWidth - rail.clientWidth;
-    if (scrollable <= 0) {
-      section.removeAttribute("data-pinned");
-      return;
-    }
-
-    travel = sweep + scrollable;
-    const roomBelowPanel = Math.max(0, window.innerHeight - layout.getBoundingClientRect().height);
-    pinDistance = Math.min(travel, Math.max(320, roomBelowPanel, window.innerHeight * 0.45));
-    // Start moving the cards as the panel comes into view to keep the pinned stretch short.
-    const sectionBounds = section.getBoundingClientRect();
-    const sectionStart = Math.max(0, sectionBounds.top + window.scrollY);
-    approachDistance = Math.min(travel - pinDistance, roomBelowPanel, sectionStart);
-    // Leave enough page scroll to reach the last card even at the end of a page.
-    const contentBelow = Math.max(0, document.body.getBoundingClientRect().bottom - sectionBounds.bottom);
-    const endSpace = Math.ceil(Math.max(0, roomBelowPanel - contentBelow));
-    if (scrollAnchor) {
-      scrollAnchor.distance = Math.min(scrollAnchor.distance, travel);
-      scrollAnchor.progress = Math.min(scrollAnchor.progress, travel);
-    }
-    section.style.setProperty("--collections-spacer-height", `${pinDistance + endSpace}px`);
-    update();
-  }
-
-  function useManualSwipe() {
-    manualScrollY = window.scrollY;
-    section.setAttribute("data-manual-swipe", "");
-  }
-
-  rail.addEventListener("wheel", (event) => {
-    if (Math.abs(event.deltaX) > Math.abs(event.deltaY) || (event.shiftKey && event.deltaY)) useManualSwipe();
+  rail.addEventListener("scroll", () => {
+    const blur = Math.min(Math.abs(rail.scrollLeft) / 50, 5);
+    section.style.setProperty("--collections-blur", `${blur}px`);
   }, { passive: true });
-  rail.addEventListener("touchstart", (event) => {
-    const touch = event.touches[0];
-    touchStart = event.touches.length === 1 ? [touch.clientX, touch.clientY] : null;
-  }, { passive: true });
-  rail.addEventListener("touchmove", (event) => {
-    if (!touchStart || event.touches.length !== 1) return;
-    const touch = event.touches[0];
-    const dx = Math.abs(touch.clientX - touchStart[0]);
-    if (dx > 8 && dx > Math.abs(touch.clientY - touchStart[1])) useManualSwipe();
-  }, { passive: true });
-  rail.addEventListener("keydown", (event) => {
-    if (event.key === "ArrowLeft" || event.key === "ArrowRight") useManualSwipe();
-  });
-  window.addEventListener("scroll", schedule, { passive: true });
-  window.addEventListener("resize", () => {
-    const width = window.innerWidth;
-    if (width === viewportWidth && matchMedia("(hover: none) and (pointer: coarse)").matches) return;
-    viewportWidth = width;
-    measure();
-  });
-  rail.addEventListener("focusout", schedule);
-  motion.addEventListener("change", measure);
-  measure();
 }
 
 function updateCategoryControls() {

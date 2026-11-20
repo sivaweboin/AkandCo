@@ -118,36 +118,6 @@ if (!product) {
     pairingSection.hidden = false;
   }
 
-  function updateRecentlyViewed() {
-    const recentlyViewedKey = "akco-recently-viewed";
-    const recentlyViewedLimit = 6;
-    let viewedIds = [];
-    try {
-      const stored = JSON.parse(localStorage.getItem(recentlyViewedKey));
-      if (Array.isArray(stored)) viewedIds = stored;
-    } catch {
-      // Start with an empty history when storage is unavailable or invalid.
-    }
-
-    const previousProducts = [...new Set(viewedIds)]
-      .map((id) => otherProducts.find((item) => item.id === id))
-      .filter(Boolean)
-      .slice(0, recentlyViewedLimit);
-    document.querySelector("#recently-viewed-grid").replaceChildren(...previousProducts.map(recommendationCard));
-    document.querySelector("#recently-viewed").hidden = previousProducts.length === 0;
-
-    try {
-      const updatedIds = [product.id, ...previousProducts.map((item) => item.id)];
-      localStorage.setItem(recentlyViewedKey, JSON.stringify(updatedIds));
-    } catch {
-      // Browsing and cart actions still work when storage is unavailable.
-    }
-  }
-  updateRecentlyViewed();
-  window.addEventListener("pageshow", (event) => {
-    if (event.persisted) updateRecentlyViewed();
-  });
-
   function getProductPrice(item) {
     if (item.id !== product.id) return item.price;
     return priceBySize[selectedSize];

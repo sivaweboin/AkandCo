@@ -22,9 +22,10 @@
       let position = 0;
       let lastTime = 0;
       let frame = 0;
+      let startTimer;
+      let started = false;
       let visible = false;
-      let hovered = false;
-      let paused = false;
+      let hoveringCard = false;
       let drag = null;
 
       function draw() {
@@ -49,20 +50,34 @@
       }
 
       function syncMotion() {
-        const playing = period && width > 640 && visible && !document.hidden && !paused && !hovered && document.activeElement !== viewport;
+        const playing = period && visible && !document.hidden && !hoveringCard && !viewport.hasAttribute("data-dragging") && !viewport.matches(":focus-visible");
+        if (frame && (!playing || !started)) {
+          cancelAnimationFrame(frame);
+          frame = 0;
+        }
+        if (!playing) {
+          clearTimeout(startTimer);
+          startTimer = undefined;
+        } else if (!started) {
+          startTimer ??= setTimeout(() => {
+            startTimer = undefined;
+            started = true;
+            syncMotion();
+          }, 2000);
+          return;
+        }
         if (playing && !frame) {
           position = period + wrap(viewport.scrollLeft, period);
           viewport.scrollLeft = position;
           lastTime = 0;
           frame = requestAnimationFrame(tick);
-        } else if (!playing && frame) {
-          cancelAnimationFrame(frame);
-          frame = 0;
         }
       }
 
       function pause() {
-        paused = true;
+        clearTimeout(startTimer);
+        startTimer = undefined;
+        started = false;
         syncMotion();
       }
 
@@ -136,17 +151,18 @@
       viewport.addEventListener("scroll", draw, { passive: true, signal });
       viewport.addEventListener("focus", syncMotion, { signal });
       viewport.addEventListener("blur", syncMotion, { signal });
-      viewport.addEventListener("pointerover", trackPointer, { passive: true, signal });
-      viewport.addEventListener("pointermove", trackPointer, { passive: true, signal });
-      viewport.addEventListener("pointerenter", (event) => {
+      viewport.addEventListener("pointerover", (event) => {
         if (event.pointerType !== "mouse") return;
-        hovered = true;
+        hoveringCard = Boolean(event.target.closest(".akco-testimonials-slot"));
         syncMotion();
-      }, { signal });
-      viewport.addEventListener("pointerleave", () => {
-        hovered = false;
+        trackPointer(event);
+      }, { passive: true, signal });
+      viewport.addEventListener("pointerout", (event) => {
+        if (event.pointerType !== "mouse" || event.relatedTarget?.closest?.(".akco-testimonials-slot")) return;
+        hoveringCard = false;
         syncMotion();
-      }, { signal });
+      }, { passive: true, signal });
+      viewport.addEventListener("pointermove", trackPointer, { passive: true, signal });
       viewport.addEventListener("wheel", (event) => {
         if (event.shiftKey || Math.abs(event.deltaX) > Math.abs(event.deltaY)) pause();
       }, { passive: true, signal });
@@ -181,6 +197,7 @@
         viewport.addEventListener(name, () => {
           drag = null;
           viewport.removeAttribute("data-dragging");
+          syncMotion();
         }, { signal });
       }
 
@@ -207,6 +224,7 @@
         controller.abort();
         resize.disconnect();
         entry.disconnect();
+        clearTimeout(startTimer);
         cancelAnimationFrame(frame);
         for (const duplicate of duplicates) duplicate.remove();
       };

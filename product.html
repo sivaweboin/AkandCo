@@ -915,13 +915,6 @@ body:has(.cart-drawer[open]) {
         <div class="related-grid" id="related-grid"></div>
       </section>
 
-      <section class="related-products" id="recently-viewed" hidden aria-labelledby="recently-viewed-title" data-reveal>
-        <div class="related-heading">
-          <h2 id="recently-viewed-title">Recently Viewed</h2>
-        </div>
-        <div class="related-grid" id="recently-viewed-grid"></div>
-      </section>
-
       <section class="product-not-found" id="product-not-found" hidden aria-labelledby="not-found-title">
         <h1 id="not-found-title">Fragrance not found</h1>
         <p>Choose a fragrance from the AK&amp;CO collection to view its details.</p>
@@ -1334,36 +1327,6 @@ if (!product) {
     relatedSection.hidden = false;
     pairingSection.hidden = false;
   }
-
-  function updateRecentlyViewed() {
-    const recentlyViewedKey = "akco-recently-viewed";
-    const recentlyViewedLimit = 6;
-    let viewedIds = [];
-    try {
-      const stored = JSON.parse(localStorage.getItem(recentlyViewedKey));
-      if (Array.isArray(stored)) viewedIds = stored;
-    } catch {
-      // Start with an empty history when storage is unavailable or invalid.
-    }
-
-    const previousProducts = [...new Set(viewedIds)]
-      .map((id) => otherProducts.find((item) => item.id === id))
-      .filter(Boolean)
-      .slice(0, recentlyViewedLimit);
-    document.querySelector("#recently-viewed-grid").replaceChildren(...previousProducts.map(recommendationCard));
-    document.querySelector("#recently-viewed").hidden = previousProducts.length === 0;
-
-    try {
-      const updatedIds = [product.id, ...previousProducts.map((item) => item.id)];
-      localStorage.setItem(recentlyViewedKey, JSON.stringify(updatedIds));
-    } catch {
-      // Browsing and cart actions still work when storage is unavailable.
-    }
-  }
-  updateRecentlyViewed();
-  window.addEventListener("pageshow", (event) => {
-    if (event.persisted) updateRecentlyViewed();
-  });
 
   function getProductPrice(item) {
     if (item.id !== product.id) return item.price;
